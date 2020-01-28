@@ -23647,34 +23647,6 @@
 						},
 						{
 							"_type": "UMLAssociation",
-							"_id": "AAAAAAFv61thBaJaBe0=",
-							"_parent": {
-								"$ref": "AAAAAAFv6JqNc8RkJ5M="
-							},
-							"end1": {
-								"_type": "UMLAssociationEnd",
-								"_id": "AAAAAAFv61thBaJbJag=",
-								"_parent": {
-									"$ref": "AAAAAAFv61thBaJaBe0="
-								},
-								"reference": {
-									"$ref": "AAAAAAFv6JqNc8RkJ5M="
-								},
-								"navigable": false
-							},
-							"end2": {
-								"_type": "UMLAssociationEnd",
-								"_id": "AAAAAAFv61thBaJcMdg=",
-								"_parent": {
-									"$ref": "AAAAAAFv61thBaJaBe0="
-								},
-								"reference": {
-									"$ref": "AAAAAAFv6JqNc8RkJ5M="
-								}
-							}
-						},
-						{
-							"_type": "UMLAssociation",
 							"_id": "AAAAAAFv61t/9aRKLTM=",
 							"_parent": {
 								"$ref": "AAAAAAFv6JqNc8RkJ5M="
@@ -24235,34 +24207,6 @@
 						},
 						{
 							"_type": "UMLAssociation",
-							"_id": "AAAAAAFv61SjCkUm6Sw=",
-							"_parent": {
-								"$ref": "AAAAAAFv6J9EX8azJF8="
-							},
-							"end1": {
-								"_type": "UMLAssociationEnd",
-								"_id": "AAAAAAFv61SjCkUn1AA=",
-								"_parent": {
-									"$ref": "AAAAAAFv61SjCkUm6Sw="
-								},
-								"reference": {
-									"$ref": "AAAAAAFv6J9EX8azJF8="
-								},
-								"navigable": false
-							},
-							"end2": {
-								"_type": "UMLAssociationEnd",
-								"_id": "AAAAAAFv61SjCkUoJB0=",
-								"_parent": {
-									"$ref": "AAAAAAFv61SjCkUm6Sw="
-								},
-								"reference": {
-									"$ref": "AAAAAAFv6J9EX8azJF8="
-								}
-							}
-						},
-						{
-							"_type": "UMLAssociation",
 							"_id": "AAAAAAFv61Tankc9Rns=",
 							"_parent": {
 								"$ref": "AAAAAAFv6J9EX8azJF8="
@@ -24403,19 +24347,6 @@
 					"ownedElements": [
 						{
 							"_type": "UMLGeneralization",
-							"_id": "AAAAAAFv6Kpg7NNawQg=",
-							"_parent": {
-								"$ref": "AAAAAAFv6J/M4sc5hMU="
-							},
-							"source": {
-								"$ref": "AAAAAAFv6J/M4sc5hMU="
-							},
-							"target": {
-								"$ref": "AAAAAAFv6J9pT8bdGo4="
-							}
-						},
-						{
-							"_type": "UMLGeneralization",
 							"_id": "AAAAAAFv62vr1qFK7V8=",
 							"_parent": {
 								"$ref": "AAAAAAFv6J/M4sc5hMU="
@@ -24551,22 +24482,7 @@
 					"_parent": {
 						"$ref": "AAAAAAFv6JprocRfogw="
 					},
-					"name": "Critic translation",
-					"ownedElements": [
-						{
-							"_type": "UMLInclude",
-							"_id": "AAAAAAFv6LFMTxrR4qI=",
-							"_parent": {
-								"$ref": "AAAAAAFv6KDiVMggjBc="
-							},
-							"source": {
-								"$ref": "AAAAAAFv6KDiVMggjBc="
-							},
-							"target": {
-								"$ref": "AAAAAAFv6KDiVMggjBc="
-							}
-						}
-					]
+					"name": "Critic translation"
 				},
 				{
 					"_type": "UMLUseCase",
