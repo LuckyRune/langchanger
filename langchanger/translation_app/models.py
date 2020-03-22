@@ -7,6 +7,10 @@ from django.contrib.auth.models import User
 class Genre(models.Model):
     name = models.CharField('Название жанра произведения', max_length=30)
 
+    class Meta:
+        verbose_name = 'Жанр'
+        verbose_name_plural = 'Жанры'
+
     def __str__(self):
         return self.name
 
@@ -14,12 +18,20 @@ class Genre(models.Model):
 class FormatType(models.Model):
     name = models.CharField('Название формата произведения', max_length=30)
 
+    class Meta:
+        verbose_name = 'Формат произведения'
+        verbose_name_plural = 'Форматы произведений'
+
     def __str__(self):
         return self.name
 
 
 class Language(models.Model):
     name = models.CharField('Язык', max_length=30)
+
+    class Meta:
+        verbose_name = 'Язык'
+        verbose_name_plural = 'Языки'
 
     def __str__(self):
         return self.name
@@ -47,8 +59,16 @@ class Origin(models.Model):
     ]
     age_limit = models.CharField('Возрастной рейтинг', max_length=2, choices=AGES, default=AGES[-1])
 
-    poster = models.ImageField('Постер книги', upload_to='images/', blank=True, null=True)
-    source_link = models.FileField('Ссылка на книгу', upload_to='files/', blank=True, null=True)
+    poster_hash = models.CharField('Хеш постера', max_length=120, blank=True, null=True)
+    poster = models.ImageField('Постер произведения', upload_to='images/', blank=True, null=True)
+    source_hash = models.CharField('Хеш произведения', max_length=120, blank=True, null=True)
+    source_link = models.FileField('Ссылка на произведение', upload_to='files/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Оригинал'
+        verbose_name_plural = 'Оригиналы'
+
+        ordering = ['isbn']
 
     def __str__(self):
         origin_label = "{}, {}".format(self.title, self.author)
@@ -63,7 +83,14 @@ class Translation(models.Model):
     origin = models.ForeignKey(Origin, verbose_name='Оригинал', on_delete=models.SET_NULL, blank=True, null=True)
     language = models.ForeignKey(Language, verbose_name='Язык', on_delete=models.SET_NULL, blank=True, null=True)
 
+    translation_hash = models.CharField('Хеш перевода', max_length=120, blank=True, null=True)
     translation_link = models.FileField('Ссылка на перевод', upload_to='files/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Перевод'
+        verbose_name_plural = 'Переводы'
+
+        ordering = ['-creation_date']
 
     def __str__(self):
         translation_label = "Автор перевода: {}; Язык: {}; Оригинал: {}".format(self.author, self.language, self.origin)
@@ -79,7 +106,14 @@ class Version(models.Model):
 
     translation = models.ForeignKey(Translation, verbose_name='Основной перевод', on_delete=models.CASCADE)
 
+    version_hash = models.CharField('Хеш версии', max_length=120, blank=True, null=True)
     version_link = models.FileField('Ссылка на версию', upload_to='files/', blank=True, null=True)
+
+    class Meta:
+        verbose_name = 'Версия перевода'
+        verbose_name_plural = 'Версии переводов'
+
+        ordering = ['translation', '-creation_date']
 
     def __str__(self):
         translation = self.translation.__str__()
@@ -92,6 +126,12 @@ class RateList(models.Model):
 
     user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE)
     translation = models.ForeignKey(Translation, verbose_name='Перевод', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Оценка'
+        verbose_name_plural = 'Оценки'
+
+        ordering = ['translation']
 
     def __str__(self):
         translation = self.translation.__str__()
@@ -116,6 +156,12 @@ class Comment(models.Model):
     parent_comment = models.ForeignKey('Comment', verbose_name='Родительский коментарий', on_delete=models.CASCADE,
                                        null=True, blank=True)
 
+    class Meta:
+        verbose_name = 'Комментарий'
+        verbose_name_plural = 'Комментарии'
+
+        ordering = ['-post_date']
+
     def __str__(self):
         comment_label = "{}: {}...".format(self.author.username, self.post[:20])
         return comment_label
@@ -124,6 +170,12 @@ class Comment(models.Model):
 class CommentOrigin(models.Model):
     comment = models.OneToOneField(Comment, verbose_name='Основной комментарий', on_delete=models.CASCADE)
     origin = models.ForeignKey(Origin, verbose_name='Книга', on_delete=models.CASCADE)
+
+    class Meta:
+        verbose_name = 'Комментарий произведения'
+        verbose_name_plural = 'Комментарии произведений'
+
+        ordering = ['origin']
 
     def __str__(self):
         comment = self.comment.__str__()
