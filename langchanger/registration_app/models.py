@@ -34,6 +34,9 @@ class Achievement(models.Model):
     description = models.TextField('Описание', max_length=500, blank=True, null=True)
     rate = models.IntegerField('Стоимость', default=1)
 
+    icon_hash = models.CharField('Хеш иконки', max_length=120, blank=True, null=True)
+    icon = models.ImageField('Иконка', upload_to='images/', blank=True, null=True)
+
     class Meta:
         verbose_name = 'Достижение'
         verbose_name_plural = 'Достижения'
