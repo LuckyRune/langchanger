@@ -68,7 +68,7 @@ class Origin(models.Model):
         verbose_name = 'Оригинал'
         verbose_name_plural = 'Оригиналы'
 
-        ordering = ['isbn']
+        ordering = ['id']
 
     def __str__(self):
         origin_label = "{}, {}".format(self.title, self.author)
