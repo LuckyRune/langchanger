@@ -79,7 +79,14 @@ class ReadTranslationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Translation
-        fields = ('id', 'rate', 'author', 'translation_link')
+        fields = ('id', 'rate', 'author')
+
+
+class ReadVersionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Version
+        fields = ('id', 'change_number', 'creation_date', 'version_link')
 
 
 class AllVersionSerializer(serializers.ModelSerializer):
@@ -87,15 +94,6 @@ class AllVersionSerializer(serializers.ModelSerializer):
     class Meta:
         model = Version
         fields = ('id', 'change_number', 'creation_date')
-
-
-class ViewChangeVersionSerializer(serializers.ModelSerializer):
-
-    translation = ReadTranslationSerializer
-
-    class Meta:
-        model = Version
-        fields = ('id', 'change_number', 'creation_date', 'translation', 'version_link')
 
 
 class CommentSerializer(serializers.ModelSerializer):
