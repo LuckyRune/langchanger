@@ -2,7 +2,6 @@ from rest_framework import serializers
 
 from .models import *
 from django.contrib.auth.models import User
-from translation_app.serializers import MainInfoOriginSerializer
 
 
 class BaseUserSerializer(serializers.ModelSerializer):
@@ -22,8 +21,6 @@ class AchievementSerializer(serializers.ModelSerializer):
 class UserProfileSerializer(serializers.ModelSerializer):
 
     user = BaseUserSerializer
-    achievements = AchievementSerializer(many=True)
-    on_hold = MainInfoOriginSerializer(many=True)
 
     class Meta:
         model = UserProfile
@@ -36,7 +33,14 @@ class AllUserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ('user', 'rate', 'profile_icon')
+        fields = ('user', 'rate', 'profile_icon', 'achievements')
 
 
+class SettingUserSerializer(serializers.ModelSerializer):
+
+    user = BaseUserSerializer
+
+    class Meta:
+        model = UserProfile
+        fields = ('user', 'profile_icon', 'description')
 
