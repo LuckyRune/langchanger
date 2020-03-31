@@ -11,7 +11,7 @@ class UserProfile(models.Model):
     rate = models.BigIntegerField('Общая оценка пользователя', default=0)
     description = models.TextField('О себе', max_length=1000, blank=True, null=True)
 
-    user = models.OneToOneField(User, verbose_name='Основной пользователь', on_delete=models.CASCADE)
+    user = models.OneToOneField(User, related_name='user_profile', verbose_name='Основной пользователь', on_delete=models.CASCADE)
     achievements = models.ManyToManyField('Achievement', verbose_name='Достижения', blank=True)
     on_hold = models.ManyToManyField(Origin, verbose_name='Отложенное', blank=True)
 
