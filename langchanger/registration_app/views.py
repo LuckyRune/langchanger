@@ -82,7 +82,7 @@ class AchievementUserView(APIView):
         return Response(content)
 
 
-class HoldOnUserView(APIView):
+class OnHoldUserView(APIView):
     permission_classes = [permissions.AllowAny]
 
     renderer_classes = [JSONRenderer]

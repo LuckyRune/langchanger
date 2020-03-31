@@ -9,7 +9,7 @@ from rest_framework.renderers import JSONRenderer
 
 from .models import *
 from .serializers import *
-from . import __package__ as app
+from django.contrib.auth.models import User
 
 
 def paginator(request, queryset):
@@ -76,7 +76,7 @@ class OneOriginView(APIView):
         languages = Language.objects.filter(pk__in=translation_lang)
 
         serializer_language = LanguageSerializer(languages, many=True)
-        serializer_origin = OneOriginSerializer(origin, many=True)
+        serializer_origin = OneOriginSerializer(origin)
 
         content = {'data': {
             'origin': serializer_origin.data,
@@ -93,12 +93,12 @@ class TranslationByLanguageView(APIView):
 
     def get(self, request):
         origin = int(request.GET.get('origin', -1))
-        language = request.GET.get('language', None)
+        language = int(request.GET.get('language', -1))
 
-        if origin != -1 and language is not None:
+        if origin != -1 and language != -1:
             translations = Translation.objects.filter(
                 Q(origin=origin) &
-                Q(language__name=language)
+                Q(language=language)
             )
         else:
             raise Http404
@@ -116,10 +116,10 @@ class ReadOriginView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        pk = int(request.GET.get('origin', -1))
+        pk = int(request.GET.get('origin', 1))
 
         origin = get_object_or_404(Origin, pk=pk)
-        serializer = ReadOriginSerializer(origin, many=True)
+        serializer = ReadOriginSerializer(origin)
 
         content = {'data': serializer.data}
 
@@ -135,14 +135,14 @@ class ReadTranslationView(APIView):
         pk = int(request.GET.get('translation', -1))
 
         translation = get_object_or_404(Translation, pk=pk)
-        last_version = get_list_or_404(Version, translation=pk).objects.latest('creation_date')
+        last_version = Version.objects.filter(translation=pk).latest('creation_date')
 
         serializer_translation = ReadTranslationSerializer(translation)
         serializer_version = ReadVersionSerializer(last_version)
 
         content = {'data': {
             'translation': serializer_translation.data,
-            'last_version': serializer_version,
+            'last_version': serializer_version.data,
         }}
 
         return Response(content)
@@ -156,19 +156,16 @@ class MakeTranslationView(APIView):
     def get(self, request):
         pk = int(request.GET.get('translation', -1))
 
-        if pk != -1:
-            translation = Translation.objects.get(pk=pk)
-            last_version = Version.objects.filter(translation=pk).latest('creation_date')
+        translation = get_object_or_404(Translation, pk=pk)
+        last_version = Version.objects.filter(translation=pk).latest('creation_date')
 
-            serializer_translation = ReadTranslationSerializer(translation)
-            serializer_version = ReadVersionSerializer(last_version)
+        serializer_translation = ReadTranslationSerializer(translation)
+        serializer_version = ReadVersionSerializer(last_version)
 
-            content = {'data': {
-                'translation': serializer_translation.data,
-                'last_version': serializer_version,
-            }}
-        else:
-            content = {'data': 'None'}
+        content = {'data': {
+            'translation': serializer_translation.data,
+            'last_version': serializer_version.data,
+        }}
 
         return Response(content)
 
@@ -181,28 +178,28 @@ class AllVersionView(APIView):
     def get(self, request):
         translation = int(request.GET.get('translation', -1))
 
-        versions = get_list_or_404(Origin, translation=translation)
+        versions = get_list_or_404(Version, translation=translation)
         serializer = AllVersionSerializer(versions, many=True)
 
-        content = {'data':  serializer.data}
+        content = {'data': serializer.data}
 
         return Response(content)
 
 
-class DifferenceVersionView(APIView):
+class DifferencesVersionView(APIView):
     permission_classes = [permissions.AllowAny]
 
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        pk = int(request.GET.get('version', -1))
+        pk = int(request.GET.get('version', 1))
 
         current_version = get_object_or_404(Version, pk=pk)
         translation = current_version.translation
         last_version = Version.objects.filter(translation=translation).latest('creation_date')
 
-        serializer_current = ReadVersionSerializer(current_version, many=True)
-        serializer_last = ReadVersionSerializer(last_version, many=True)
+        serializer_current = ReadVersionSerializer(current_version)
+        serializer_last = ReadVersionSerializer(last_version)
 
         content = {'data': {
             'current_version': serializer_current.data,

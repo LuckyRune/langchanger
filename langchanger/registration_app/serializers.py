@@ -4,13 +4,6 @@ from .models import *
 from django.contrib.auth.models import User
 
 
-class BaseUserSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = User
-        fields = ('id', 'username', 'email')
-
-
 class AchievementSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -20,27 +13,32 @@ class AchievementSerializer(serializers.ModelSerializer):
 
 class UserProfileSerializer(serializers.ModelSerializer):
 
-    user = BaseUserSerializer
+    class Meta:
+        model = UserProfile
+        fields = ('id', 'rate', 'description', 'achievements', 'on_hold', 'profile_icon')
+
+
+class MinUserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ('user', 'rate', 'description', 'achievements', 'on_hold', 'profile_icon')
+        fields = ('id', 'rate')
 
 
-class AllUserProfileSerializer(serializers.ModelSerializer):
+class RateUserSerializer(serializers.ModelSerializer):
 
-    user = BaseUserSerializer
+    user_profile = MinUserProfileSerializer()
 
     class Meta:
-        model = UserProfile
-        fields = ('user', 'rate', 'profile_icon', 'achievements')
+        model = User
+        fields = ('id', 'username', 'user_profile')
 
 
 class SettingUserSerializer(serializers.ModelSerializer):
 
-    user = BaseUserSerializer
+    user_profile = UserProfileSerializer()
 
     class Meta:
-        model = UserProfile
-        fields = ('user', 'profile_icon', 'description')
+        model = User
+        fields = ('id', 'username', 'email', 'user_profile')
 

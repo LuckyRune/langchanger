@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from .models import *
+from registration_app.serializers import RateUserSerializer
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -27,8 +28,8 @@ class LanguageSerializer(serializers.ModelSerializer):
 class OneOriginSerializer(serializers.ModelSerializer):
 
     genre = GenreSerializer(many=True)
-    format_type = FormatTypeSerializer
-    origin_language = LanguageSerializer
+    format_type = FormatTypeSerializer()
+    origin_language = LanguageSerializer()
 
     class Meta:
         model = Origin
@@ -59,6 +60,7 @@ class ReadOriginSerializer(serializers.ModelSerializer):
 
 
 class OriginTranslationSerializer(serializers.ModelSerializer):
+    author = RateUserSerializer()
 
     class Meta:
         model = Translation
@@ -67,8 +69,8 @@ class OriginTranslationSerializer(serializers.ModelSerializer):
 
 class UserProfileTranslationSerializer(serializers.ModelSerializer):
 
-    origin = MainInfoOriginSerializer
-    language = LanguageSerializer
+    origin = MainInfoOriginSerializer()
+    language = LanguageSerializer()
 
     class Meta:
         model = Translation
@@ -76,6 +78,7 @@ class UserProfileTranslationSerializer(serializers.ModelSerializer):
 
 
 class ReadTranslationSerializer(serializers.ModelSerializer):
+    author = RateUserSerializer()
 
     class Meta:
         model = Translation
@@ -105,7 +108,7 @@ class CommentSerializer(serializers.ModelSerializer):
 
 class OriginCommentSerializer(serializers.ModelSerializer):
 
-    comment = CommentSerializer
+    comment = CommentSerializer()
 
     class Meta:
         model = CommentOrigin
