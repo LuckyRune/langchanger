@@ -28,16 +28,30 @@ class AllUserView(APIView):
 
     renderer_classes = [JSONRenderer]
 
+    ordering_set = {
+        'rate': 'user_profile__rate',
+        'achievement': 'ach',
+        'translation': '',
+    }
+
     def get(self, request):
-        queryset = UserProfile.objects.all()
+        order_by = request.GET.get('order', 'rate')
+
+        if order_by is None:
+            queryset = User.objects.filter(is_staff=False)
+        else:
+            # queryset = User.objects.filter(is_staff=False).order_by(self.ordering_set[order_by])
+            queryset = User.objects.filter(is_staff=False).order_by('rate')
 
         response_queryset = paginator(request, queryset)
 
-        serializer = AllUserProfileSerializer(response_queryset, many=True)
-        for user in serializer:
-            user['field'] = '+'
+        serializer = DetailedUserSerializer(response_queryset, many=True)
 
         content = {'data': serializer.data}
+        for user in content['data']:
+            user['count_achievement'] = len(user['user_profile']['achievements'])
+            count_translation = Translation.objects.filter(author=user['id']).count()
+            user['count_translation'] = count_translation
 
         return Response(content)
 
@@ -48,13 +62,13 @@ class ProfileUserView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        pk = int(request.GET.get('user', -1))
+        pk = int(request.GET.get('user', 3))
 
-        user = get_object_or_404(UserProfile, pk=pk)
-        translations = Translation.objects.filter(user=pk)
+        user = get_object_or_404(User, pk=pk)
+        translations = Translation.objects.filter(author=pk)
 
         serializer_translations = UserProfileTranslationSerializer(translations, many=True)
-        serializer_user = UserProfileSerializer(user)
+        serializer_user = DetailedUserSerializer(user)
 
         content = {'data': {
             'user': serializer_user.data,
@@ -64,18 +78,17 @@ class ProfileUserView(APIView):
         return Response(content)
 
 
-class AchievementUserView(APIView):
+class AchievementView(APIView):
     permission_classes = [permissions.AllowAny]
 
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        user = int(request.GET.get('user', -1))
+        pk = int(request.GET.get('achievement', -1))
 
-        achievements_id = get_object_or_404(UserProfile, pk=user).objects.values('achievements')
-        achievements_object = Achievement.objects.filter(id__in=achievements_id)
+        achievement = get_object_or_404(Achievement, pk=pk)
 
-        serializer = AchievementSerializer(achievements_object, many=True)
+        serializer = AchievementSerializer(achievement)
 
         content = {'data': serializer.data}
 
@@ -88,12 +101,11 @@ class OnHoldUserView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        user = int(request.GET.get('user', -1))
+        pk = int(request.GET.get('origin', -1))
 
-        origins_id = get_object_or_404(UserProfile, pk=user).objects.values('hold_on')
-        origins_object = Origin.objects.filter(id__in=origins_id)
+        origin = get_object_or_404(Origin, pk=pk)
 
-        serializer = MainInfoOriginSerializer(origins_object, many=True)
+        serializer = MainInfoOriginSerializer(origin)
 
         content = {'data': serializer.data}
 
@@ -106,11 +118,11 @@ class SettingUserView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        pk = int(request.GET.get('user', -1))
+        pk = int(request.GET.get('user', 3))
 
-        user = get_object_or_404(UserProfile, pk=pk)
+        user = get_object_or_404(User, pk=pk)
 
-        serializer = SettingUserSerializer(user, many=True)
+        serializer = SettingUserSerializer(user)
 
         content = {'data': serializer.data}
 

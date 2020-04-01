@@ -18,16 +18,24 @@ class UserProfileSerializer(serializers.ModelSerializer):
         fields = ('id', 'rate', 'description', 'achievements', 'on_hold', 'profile_icon')
 
 
-class MinUserProfileSerializer(serializers.ModelSerializer):
+class RateUserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
         fields = ('id', 'rate')
 
 
+class DetailedUserSerializer(serializers.ModelSerializer):
+    user_profile = UserProfileSerializer()
+
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'user_profile')
+
+
 class RateUserSerializer(serializers.ModelSerializer):
 
-    user_profile = MinUserProfileSerializer()
+    user_profile = RateUserProfileSerializer()
 
     class Meta:
         model = User

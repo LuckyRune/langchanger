@@ -116,7 +116,7 @@ class ReadOriginView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        pk = int(request.GET.get('origin', 1))
+        pk = int(request.GET.get('origin', -1))
 
         origin = get_object_or_404(Origin, pk=pk)
         serializer = ReadOriginSerializer(origin)
@@ -192,7 +192,7 @@ class DifferencesVersionView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        pk = int(request.GET.get('version', 1))
+        pk = int(request.GET.get('version', -1))
 
         current_version = get_object_or_404(Version, pk=pk)
         translation = current_version.translation
