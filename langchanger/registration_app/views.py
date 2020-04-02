@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404
+from django.db.models import Count
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -29,29 +30,26 @@ class AllUserView(APIView):
     renderer_classes = [JSONRenderer]
 
     ordering_set = {
-        'rate': 'user_profile__rate',
-        'achievement': 'ach',
-        'translation': '',
+        'rate': '-user_profile__rate',
+        'achievement': '-count_achievement',
+        'translation': '-count_translation',
     }
 
     def get(self, request):
         order_by = request.GET.get('order', 'rate')
 
-        if order_by is None:
-            queryset = User.objects.filter(is_staff=False)
-        else:
-            # queryset = User.objects.filter(is_staff=False).order_by(self.ordering_set[order_by])
-            queryset = User.objects.filter(is_staff=False).order_by('rate')
+        queryset = User.objects.filter(is_staff=False)
+        queryset = queryset.annotate(count_achievement=Count('user_profile__achievements'))
+        queryset = queryset.annotate(count_translation=Count('translation_set'))
+
+        if order_by in self.ordering_set:
+            queryset = queryset.order_by(self.ordering_set[order_by])
 
         response_queryset = paginator(request, queryset)
 
-        serializer = DetailedUserSerializer(response_queryset, many=True)
+        serializer = AllUserSerializer(response_queryset, many=True)
 
         content = {'data': serializer.data}
-        for user in content['data']:
-            user['count_achievement'] = len(user['user_profile']['achievements'])
-            count_translation = Translation.objects.filter(author=user['id']).count()
-            user['count_translation'] = count_translation
 
         return Response(content)
 
