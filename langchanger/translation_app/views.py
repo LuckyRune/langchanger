@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, get_list_or_404
-from django.db.models import Q
+from django.db.models import Q, Sum
 from django.http import Http404
 
 from rest_framework.views import APIView
@@ -43,16 +43,27 @@ class AllOriginView(APIView):
 
     renderer_classes = [JSONRenderer]
 
-    def get(self, request):
-        filter_dict = request.GET.get('filters', None)
+    filter_name_set = {
+        'format': 'format_type__in',
+        'genre': 'genre__in',
+        'age': 'age_limit__in',
+        'language': 'origin_language__in',
+    }
 
-        if filter_dict is None:
-            queryset = Origin.objects.all()
-        else:
-            queryset = Origin.objects.filter(
-                format_type__name__in=filter_dict['format_type'],
-                genre__name__in=filter_dict['genre'],
-                age_limit__in=filter_dict['age_limit'])
+    def get(self, request):
+        raw_filter = request.GET.get('filters', {})
+        order_by = request.GET.get('order', 'relevance')
+
+        complete_filter = {}
+        for key, data in raw_filter.items():
+            filter_key = self.filter_name_set[key]
+            complete_filter[filter_key] = data
+
+        queryset = Origin.objects.filter(**complete_filter)
+
+        if order_by == 'relevance':
+            queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
+            queryset = queryset.order_by('-rate', 'id')
 
         response_queryset = paginator(request, queryset)
 
