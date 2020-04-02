@@ -68,7 +68,7 @@ class Origin(models.Model):
         verbose_name = 'Оригинал'
         verbose_name_plural = 'Оригиналы'
 
-        ordering = ['isbn']
+        ordering = ['id']
 
     def __str__(self):
         origin_label = "{}, {}".format(self.title, self.author)
@@ -79,8 +79,10 @@ class Translation(models.Model):
     creation_date = models.DateTimeField('Дата начала перевода', auto_now_add=True)
     rate = models.BigIntegerField('Оценка', default=0)
 
-    author = models.ForeignKey(User, verbose_name='Автор', default=2, on_delete=models.SET_DEFAULT)
-    origin = models.ForeignKey(Origin, verbose_name='Оригинал', on_delete=models.SET_NULL, blank=True, null=True)
+    author = models.ForeignKey(User, related_name='translation_set', verbose_name='Автор',
+                               on_delete=models.SET_NULL, blank=True, null=True)
+    origin = models.ForeignKey(Origin, related_name='translation_set', verbose_name='Оригинал',
+                               on_delete=models.SET_NULL, blank=True, null=True)
     language = models.ForeignKey(Language, verbose_name='Язык', on_delete=models.SET_NULL, blank=True, null=True)
 
     translation_hash = models.CharField('Хеш перевода', max_length=120, blank=True, null=True)
@@ -123,9 +125,11 @@ class Version(models.Model):
 
 class RateList(models.Model):
     rate = models.SmallIntegerField('Оценка', default=0)
+    rate_date = models.DateField('Дата оценивания', auto_now_add=True)
 
     user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE)
-    translation = models.ForeignKey(Translation, verbose_name='Перевод', on_delete=models.CASCADE)
+    translation = models.ForeignKey(Translation, related_name='rate_set', verbose_name='Перевод',
+                                    on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'Оценка'
@@ -152,7 +156,7 @@ class Comment(models.Model):
     post = models.TextField('Текст комментария', max_length=1000)
     post_date = models.DateTimeField('Дата создания', auto_now_add=True)
 
-    author = models.ForeignKey(User, verbose_name='Автор', default=2, on_delete=models.SET_DEFAULT)
+    author = models.ForeignKey(User, verbose_name='Автор', on_delete=models.SET_NULL, blank=True, null=True)
     parent_comment = models.ForeignKey('Comment', verbose_name='Родительский коментарий', on_delete=models.CASCADE,
                                        null=True, blank=True)
 

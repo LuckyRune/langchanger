@@ -11,7 +11,8 @@ class UserProfile(models.Model):
     rate = models.BigIntegerField('Общая оценка пользователя', default=0)
     description = models.TextField('О себе', max_length=1000, blank=True, null=True)
 
-    user = models.OneToOneField(User, verbose_name='Основной пользователь', on_delete=models.CASCADE)
+    user = models.OneToOneField(User, related_name='user_profile',
+                                verbose_name='Основной пользователь', on_delete=models.CASCADE)
     achievements = models.ManyToManyField('Achievement', verbose_name='Достижения', blank=True)
     on_hold = models.ManyToManyField(Origin, verbose_name='Отложенное', blank=True)
 
@@ -33,6 +34,9 @@ class Achievement(models.Model):
     name = models.CharField('Название', max_length=30)
     description = models.TextField('Описание', max_length=500, blank=True, null=True)
     rate = models.IntegerField('Стоимость', default=1)
+
+    icon_hash = models.CharField('Хеш иконки', max_length=120, blank=True, null=True)
+    icon = models.ImageField('Иконка', upload_to='images/', blank=True, null=True)
 
     class Meta:
         verbose_name = 'Достижение'
