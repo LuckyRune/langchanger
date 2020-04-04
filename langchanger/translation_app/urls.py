@@ -13,4 +13,5 @@ urlpatterns = [
     url(r'^make-translation/$', views.MakeTranslationView.as_view()),
     url(r'^all-version/$', views.AllVersionView.as_view()),
     url(r'^version-differences/$', views.DifferencesVersionView.as_view()),
+    url(r'^comment-origin/$', views.OriginCommentView.as_view()),
 ]

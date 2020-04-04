@@ -218,3 +218,19 @@ class DifferencesVersionView(APIView):
         }}
 
         return Response(content)
+
+
+class OriginCommentView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    renderer_classes = [JSONRenderer]
+
+    def get(self, request):
+        origin = int(request.GET.get('origin', 1))
+
+        comments = get_list_or_404(CommentOrigin, origin=origin)
+        serializer = OriginCommentSerializer(comments, many=True)
+
+        content = {'data': serializer.data}
+
+        return Response(content)
