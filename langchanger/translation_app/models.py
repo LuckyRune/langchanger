@@ -98,9 +98,6 @@ class Translation(models.Model):
         translation_label = "Автор перевода: {}; Язык: {}; Оригинал: {}".format(self.author, self.language, self.origin)
         return translation_label
 
-    def change_translation_link(self, version):
-        pass
-
 
 class Version(models.Model):
     change_number = models.PositiveIntegerField('Число изменений', default=0)
