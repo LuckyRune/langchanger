@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import *
-from registration_app.serializers import RateUserSerializer
+from registration_app.serializers import RateUserSerializer, AllUserSerializer
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -99,20 +99,12 @@ class AllVersionSerializer(serializers.ModelSerializer):
         fields = ('id', 'change_number', 'creation_date')
 
 
-class CommentSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Comment
-        fields = ('id', 'post', 'post_date', 'author', 'parent_comment')
-
-
 class OriginCommentSerializer(serializers.ModelSerializer):
-
-    comment = CommentSerializer()
+    author = AllUserSerializer()
 
     class Meta:
         model = CommentOrigin
-        fields = ('id', 'comment')
+        fields = ('id', 'post', 'post_date', 'author', 'parent_comment')
 
 
 

@@ -36,14 +36,8 @@ class RateListAdmin(admin.ModelAdmin):
     list_display = ('user', 'translation', 'rate')
 
 
-@admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
-    fields = ('post', 'author', 'parent_comment', 'post_date')
-    list_display = ('author', 'post_date', 'parent_comment')
-    readonly_fields = ('post_date', )
-
-
 @admin.register(CommentOrigin)
 class CommentOriginAdmin(admin.ModelAdmin):
-    fields = ('comment', 'origin')
-    list_display = ('comment', 'origin')
+    fields = ('author', 'origin', 'post', 'parent_comment', 'post_date')
+    list_display = ('author', 'origin', 'parent_comment')
+    readonly_fields = ('post_date', )

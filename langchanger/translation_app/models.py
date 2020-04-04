@@ -156,32 +156,26 @@ class Comment(models.Model):
     post = models.TextField('Текст комментария', max_length=1000)
     post_date = models.DateTimeField('Дата создания', auto_now_add=True)
 
-    author = models.ForeignKey(User, verbose_name='Автор', on_delete=models.SET_NULL, blank=True, null=True)
-    parent_comment = models.ForeignKey('Comment', verbose_name='Родительский коментарий', on_delete=models.CASCADE,
-                                       null=True, blank=True)
+    author = models.ForeignKey(User, related_name="%(class)s_set", verbose_name='Автор',
+                               on_delete=models.SET_NULL, blank=True, null=True)
+    parent_comment = models.ForeignKey('self', related_name="%(class)s_child_set",
+                                       verbose_name='Родительский коментарий',
+                                       on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
-        verbose_name = 'Комментарий'
-        verbose_name_plural = 'Комментарии'
-
-        ordering = ['-post_date']
-
-    def __str__(self):
-        comment_label = "{}: {}...".format(self.author.username, self.post[:20])
-        return comment_label
+        abstract = True
 
 
-class CommentOrigin(models.Model):
-    comment = models.OneToOneField(Comment, verbose_name='Основной комментарий', on_delete=models.CASCADE)
+class CommentOrigin(Comment):
     origin = models.ForeignKey(Origin, verbose_name='Книга', on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'Комментарий произведения'
         verbose_name_plural = 'Комментарии произведений'
 
-        ordering = ['origin']
+        ordering = ['-post_date', 'origin']
 
     def __str__(self):
-        comment = self.comment.__str__()
+        comment = "{}: {}...".format(self.author.username, self.post[:20])
         origin = self.origin.__str__()
-        return "{} ({})".format(comment, origin)
+        return "({}) {}".format(comment, origin)
