@@ -25,9 +25,9 @@ class TranslationAdmin(admin.ModelAdmin):
 
 @admin.register(Version)
 class VersionAdmin(admin.ModelAdmin):
-    fields = ('translation', 'change_number', 'creation_date', 'version_link')
-    list_display = ('translation', 'change_number', 'creation_date')
-    readonly_fields = ('change_number', 'creation_date')
+    fields = ('translation', 'creation_date', 'version_link')
+    list_display = ('translation', 'creation_date')
+    readonly_fields = ('creation_date', )
 
 
 @admin.register(RateList)

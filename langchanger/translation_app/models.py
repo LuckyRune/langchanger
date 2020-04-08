@@ -100,7 +100,6 @@ class Translation(models.Model):
 
 
 class Version(models.Model):
-    change_number = models.PositiveIntegerField('Число изменений', default=0)
     creation_date = models.DateTimeField('Дата создания', auto_now_add=True)
 
     translation = models.ForeignKey(Translation, verbose_name='Основной перевод', on_delete=models.CASCADE)
@@ -116,7 +115,7 @@ class Version(models.Model):
 
     def __str__(self):
         translation = self.translation.__str__()
-        version_label = "{} № {} ({})".format(translation, self.change_number, self.creation_date)
+        version_label = "{} № {} ({})".format(translation, self.creation_date)
         return version_label
 
 
