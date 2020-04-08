@@ -85,18 +85,32 @@ class ReadTranslationSerializer(serializers.ModelSerializer):
         fields = ('id', 'rate', 'author')
 
 
+class MakeTranslationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Translation
+        fields = ('origin', 'language', 'author')
+
+
+class MakeVersionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Version
+        fields = ('version_link', )
+
+
 class ReadVersionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Version
-        fields = ('id', 'change_number', 'creation_date', 'version_link')
+        fields = ('id', 'creation_date', 'version_link')
 
 
 class AllVersionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Version
-        fields = ('id', 'change_number', 'creation_date')
+        fields = ('id', 'creation_date')
 
 
 class OriginCommentSerializer(serializers.ModelSerializer):
@@ -105,8 +119,3 @@ class OriginCommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommentOrigin
         fields = ('id', 'post', 'post_date', 'author', 'parent_comment')
-
-
-
-
-

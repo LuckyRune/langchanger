@@ -143,7 +143,7 @@ class ReadTranslationView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        pk = int(request.GET.get('translation', -1))
+        pk = int(request.GET.get('translation', 1))
 
         translation = get_object_or_404(Translation, pk=pk)
         last_version = Version.objects.filter(translation=pk).latest('creation_date')
@@ -179,6 +179,26 @@ class MakeTranslationView(APIView):
         }}
 
         return Response(content)
+
+    def post(self, request):
+        serializer_translation = MakeTranslationSerializer(data=request.data)
+        serializer_version = MakeVersionSerializer(data=request.data)
+
+        if serializer_translation.is_valid() and serializer_version.is_valid():
+            translation = serializer_translation.save()
+            serializer_version.save(translation=translation.id)
+            return Response({}, status=200)
+        return Response({}, status=400)
+
+    def put(self, request):
+        translation = int(request.GET.get('translation', -1))
+
+        serializer_version = MakeVersionSerializer(data=request.data)
+
+        if serializer_version.is_valid() and translation != -1:
+            serializer_version.save(translation=translation)
+            return Response({}, status=200)
+        return Response({}, status=400)
 
 
 class AllVersionView(APIView):
