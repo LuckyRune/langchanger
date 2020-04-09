@@ -98,12 +98,8 @@ class Translation(models.Model):
         translation_label = "Автор перевода: {}; Язык: {}; Оригинал: {}".format(self.author, self.language, self.origin)
         return translation_label
 
-    def change_translation_link(self, version):
-        pass
-
 
 class Version(models.Model):
-    change_number = models.PositiveIntegerField('Число изменений', default=0)
     creation_date = models.DateTimeField('Дата создания', auto_now_add=True)
 
     translation = models.ForeignKey(Translation, verbose_name='Основной перевод', on_delete=models.CASCADE)
@@ -119,7 +115,7 @@ class Version(models.Model):
 
     def __str__(self):
         translation = self.translation.__str__()
-        version_label = "{} № {} ({})".format(translation, self.change_number, self.creation_date)
+        version_label = "{} ({})".format(translation, self.creation_date)
         return version_label
 
 
@@ -142,46 +138,31 @@ class RateList(models.Model):
         rate_label = "Пользователь {} поставил{} переводу: {}".format(self.user.username, self.rate, translation)
         return rate_label
 
-    def add_rate(self):
-        pass
-
-    def change_rate(self):
-        pass
-
-    def delete_rate(self):
-        pass
-
 
 class Comment(models.Model):
     post = models.TextField('Текст комментария', max_length=1000)
     post_date = models.DateTimeField('Дата создания', auto_now_add=True)
 
-    author = models.ForeignKey(User, verbose_name='Автор', on_delete=models.SET_NULL, blank=True, null=True)
-    parent_comment = models.ForeignKey('Comment', verbose_name='Родительский коментарий', on_delete=models.CASCADE,
-                                       null=True, blank=True)
+    author = models.ForeignKey(User, related_name="%(class)s_set", verbose_name='Автор',
+                               on_delete=models.SET_NULL, blank=True, null=True)
+    parent_comment = models.ForeignKey('self', related_name="%(class)s_child_set",
+                                       verbose_name='Родительский коментарий',
+                                       on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
-        verbose_name = 'Комментарий'
-        verbose_name_plural = 'Комментарии'
-
-        ordering = ['-post_date']
-
-    def __str__(self):
-        comment_label = "{}: {}...".format(self.author.username, self.post[:20])
-        return comment_label
+        abstract = True
 
 
-class CommentOrigin(models.Model):
-    comment = models.OneToOneField(Comment, verbose_name='Основной комментарий', on_delete=models.CASCADE)
+class CommentOrigin(Comment):
     origin = models.ForeignKey(Origin, verbose_name='Книга', on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'Комментарий произведения'
         verbose_name_plural = 'Комментарии произведений'
 
-        ordering = ['origin']
+        ordering = ['-post_date', 'origin']
 
     def __str__(self):
-        comment = self.comment.__str__()
+        comment = "{}: {}...".format(self.author.username, self.post[:20])
         origin = self.origin.__str__()
-        return "{} ({})".format(comment, origin)
+        return "({}) {}".format(comment, origin)

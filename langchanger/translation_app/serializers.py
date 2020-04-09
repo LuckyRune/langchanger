@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from .models import *
-from registration_app.serializers import RateUserSerializer
+from registration_app.serializers import RateUserSerializer, AllUserSerializer
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -82,39 +82,54 @@ class ReadTranslationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Translation
-        fields = ('id', 'rate', 'author')
+        fields = ('id', 'rate', 'author', 'origin', 'language')
+
+
+class MakeTranslationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Translation
+        fields = ('origin', 'language', 'author')
+
+
+class MakeVersionSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Version
+        fields = ('version_link', )
 
 
 class ReadVersionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Version
-        fields = ('id', 'change_number', 'creation_date', 'version_link')
+        fields = ('id', 'creation_date', 'version_link')
 
 
 class AllVersionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Version
-        fields = ('id', 'change_number', 'creation_date')
-
-
-class CommentSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Comment
-        fields = ('id', 'post', 'post_date', 'author', 'parent_comment')
+        fields = ('id', 'creation_date')
 
 
 class OriginCommentSerializer(serializers.ModelSerializer):
-
-    comment = CommentSerializer()
+    author = AllUserSerializer()
 
     class Meta:
         model = CommentOrigin
-        fields = ('id', 'comment')
+        fields = ('id', 'post', 'post_date', 'origin', 'author', 'parent_comment')
 
 
+class MakeOriginCommentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CommentOrigin
+        fields = ('post', 'author', 'origin', 'parent_comment')
 
 
+class MakeRateSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = RateList
+        fields = ('rate', 'user', 'translation')

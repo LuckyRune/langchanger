@@ -1,0 +1,16 @@
+from django import forms
+from django.core.exceptions import ValidationError
+
+from django.contrib.auth.models import User
+
+
+class CreateUserForm(forms.ModelForm):
+
+    class Meta:
+        model = User
+
+
+class ChangeUserForm(forms.ModelForm):
+
+    class Meta:
+        model = User
