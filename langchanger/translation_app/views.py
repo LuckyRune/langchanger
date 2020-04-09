@@ -143,7 +143,7 @@ class ReadTranslationView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        pk = int(request.GET.get('translation', 1))
+        pk = int(request.GET.get('translation', -1))
 
         translation = get_object_or_404(Translation, pk=pk)
         last_version = Version.objects.filter(translation=pk).latest('creation_date')
@@ -186,19 +186,31 @@ class MakeTranslationView(APIView):
 
         if serializer_translation.is_valid() and serializer_version.is_valid():
             translation = serializer_translation.save()
-            serializer_version.save(translation=translation.id)
-            return Response({}, status=200)
-        return Response({}, status=400)
+            serializer_version.save(translation=translation)
+            return Response(status=200)
+        return Response(
+            {'translation_errors': serializer_translation.errors,
+             'version_errors': serializer_version.errors},
+            status=400)
 
     def put(self, request):
-        translation = int(request.GET.get('translation', -1))
+        translation_id = int(request.POST.get('translation', -1))
+
+        translation = get_object_or_404(Translation, pk=translation_id)
 
         serializer_version = MakeVersionSerializer(data=request.data)
 
-        if serializer_version.is_valid() and translation != -1:
+        if serializer_version.is_valid():
             serializer_version.save(translation=translation)
-            return Response({}, status=200)
-        return Response({}, status=400)
+            return Response(status=200)
+        return Response(serializer_version.errors, status=400)
+
+    def delete(self, request):
+        pk = int(request.POST.get('translation', -1))
+
+        translation = get_object_or_404(Translation, pk=pk)
+        translation.delete()
+        return Response(status=200)
 
 
 class AllVersionView(APIView):
@@ -215,6 +227,23 @@ class AllVersionView(APIView):
         content = {'data': serializer.data}
 
         return Response(content)
+
+
+class DeleteVersionView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    renderer_classes = [JSONRenderer]
+
+    def delete(self, request):
+        pk = int(request.POST.get('version', -1))
+
+        version = get_object_or_404(Version, pk=pk)
+        translation = Translation.objects.get(pk=version.translation.id)
+
+        if translation.author.id == request.user.id:
+            version.delete()
+            return Response(status=200)
+        return Response(status=400)
 
 
 class DifferencesVersionView(APIView):
@@ -246,7 +275,7 @@ class OriginCommentView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        origin = int(request.GET.get('origin', 1))
+        origin = int(request.GET.get('origin', -1))
 
         comments = get_list_or_404(CommentOrigin, origin=origin)
         serializer = OriginCommentSerializer(comments, many=True)
@@ -254,3 +283,35 @@ class OriginCommentView(APIView):
         content = {'data': serializer.data}
 
         return Response(content)
+
+
+class MakeOriginCommentView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    renderer_classes = [JSONRenderer]
+
+    def post(self, request):
+        comment_serializer = MakeOriginCommentSerializer(data=request.data)
+
+        if comment_serializer.is_valid():
+            comment_serializer.save()
+
+            return Response(status=200)
+        return Response(comment_serializer.errors, status=400)
+
+
+class MakeRateView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    renderer_classes = [JSONRenderer]
+
+    def post(self, request):
+        rate_serializer = MakeRateSerializer(data=request.data)
+
+        if rate_serializer.is_valid():
+            rate_serializer.save()
+
+            return Response(status=200)
+        return Response(rate_serializer.errors, status=400)
+
+
