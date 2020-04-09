@@ -115,7 +115,7 @@ class Version(models.Model):
 
     def __str__(self):
         translation = self.translation.__str__()
-        version_label = "{} № {} ({})".format(translation, self.creation_date)
+        version_label = "{} ({})".format(translation, self.creation_date)
         return version_label
 
 
@@ -137,15 +137,6 @@ class RateList(models.Model):
         translation = self.translation.__str__()
         rate_label = "Пользователь {} поставил{} переводу: {}".format(self.user.username, self.rate, translation)
         return rate_label
-
-    def add_rate(self):
-        pass
-
-    def change_rate(self):
-        pass
-
-    def delete_rate(self):
-        pass
 
 
 class Comment(models.Model):
