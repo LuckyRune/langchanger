@@ -82,7 +82,7 @@ class ReadTranslationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Translation
-        fields = ('id', 'rate', 'author')
+        fields = ('id', 'rate', 'author', 'origin', 'language')
 
 
 class MakeTranslationSerializer(serializers.ModelSerializer):
@@ -118,4 +118,18 @@ class OriginCommentSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CommentOrigin
-        fields = ('id', 'post', 'post_date', 'author', 'parent_comment')
+        fields = ('id', 'post', 'post_date', 'origin', 'author', 'parent_comment')
+
+
+class MakeOriginCommentSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = CommentOrigin
+        fields = ('post', 'author', 'origin', 'parent_comment')
+
+
+class MakeRateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = RateList
+        fields = ('rate', 'user', 'translation')
