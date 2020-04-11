@@ -60,7 +60,7 @@ class ProfileUserView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        pk = int(request.GET.get('user', 3))
+        pk = int(request.GET.get('user', -1))
 
         user = get_object_or_404(User, pk=pk)
         translations = Translation.objects.filter(author=pk)
@@ -116,12 +116,55 @@ class SettingUserView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        pk = int(request.GET.get('user', 3))
+        user = request.user
+        profile = UserProfile.objects.filter(user=user.id)
 
-        user = get_object_or_404(User, pk=pk)
+        serializer_user = SettingUserSerializer(user)
+        serializer_profile = PostUserProfileSerializer(profile)
 
-        serializer = SettingUserSerializer(user)
-
-        content = {'data': serializer.data}
+        content = {'data': {
+            'main': serializer_user.data,
+            'additional': serializer_profile.data
+        }}
 
         return Response(content)
+
+    def put(self, request):
+        user = request.user
+        profile = UserProfile.objects.get(user=user.id)
+
+        serializer_user = SettingUserSerializer(user, data=request.data)
+        serializer_profile = PostUserProfileSerializer(profile, data=request.data)
+        validation_set = (serializer_user.is_valid(), serializer_profile.is_valid())
+
+        if False not in validation_set:
+            serializer_user.save()
+            serializer_profile.save()
+            return Response({'data': {
+                'main': serializer_user.data,
+                'additional': serializer_profile.data}
+            }, status=200)
+        return Response({'data': {
+            'main_errors': serializer_user.errors,
+            'additional_errors': serializer_profile.errors}
+        }, status=400)
+
+
+class RegisterUserView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    renderer_classes = [JSONRenderer]
+
+    def post(self, request):
+        serializer_user = RegisterUserSerializer(data=request.data)
+        serializer_profile = PostUserProfileSerializer(data=request.data)
+        validation_set = (serializer_user.is_valid(), serializer_profile.is_valid())
+
+        if False not in validation_set:
+            user = serializer_user.save()
+            serializer_profile.save(user=user)
+            return Response(status=200)
+        return Response({
+            'main_errors': serializer_user.errors,
+            'additional_errors': serializer_profile.errors
+        }, status=400)
