@@ -12,7 +12,7 @@ urlpatterns = [
 
     url(r'^translation/read/$', views.ReadTranslationView.as_view()),
     url(r'^translation/add/$', views.MakeTranslationView.as_view()),
-    url(r'^translation/add_version/$', views.MakeTranslationView.as_view()),
+    url(r'^translation/add-version/$', views.MakeTranslationView.as_view()),
     url(r'^translation/delete/$', views.MakeTranslationView.as_view()),
 
     url(r'^version/all/$', views.AllVersionView.as_view()),

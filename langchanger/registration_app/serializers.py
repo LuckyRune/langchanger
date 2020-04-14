@@ -47,7 +47,7 @@ class RateUserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ('id', 'rate')
+        fields = ('rate', )
 
 
 class RateUserSerializer(serializers.ModelSerializer):

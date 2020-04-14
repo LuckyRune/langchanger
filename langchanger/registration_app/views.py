@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.db.models import Count
+from django.db.models import Count, Sum
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,7 +9,7 @@ from rest_framework.renderers import JSONRenderer
 from .models import *
 from .serializers import *
 from translation_app.models import Translation, Origin
-from translation_app.serializers import UserProfileTranslationSerializer, MainInfoOriginSerializer
+from translation_app.serializers import UserProfileTranslationSerializer, MainInfoOriginSerializer, AllOriginSerializer
 
 
 def paginator(request, queryset):
@@ -98,12 +98,32 @@ class OnHoldUserView(APIView):
 
     renderer_classes = [JSONRenderer]
 
+    filter_name_set = {
+        'format': 'format_type__in',
+        'genre': 'genre__in',
+        'age': 'age_limit__in',
+        'language': 'origin_language__in',
+    }
+
     def get(self, request):
-        pk = int(request.GET.get('origin', -1))
+        raw_filter = request.GET.get('filters', {})
+        order_by = request.GET.get('order', 'relevance')
 
-        origin = get_object_or_404(Origin, pk=pk)
+        complete_filter = {}
+        for key, data in raw_filter.items():
+            if key in self.filter_name_set:
+                filter_key = self.filter_name_set[key]
+                complete_filter[filter_key] = data
 
-        serializer = MainInfoOriginSerializer(origin)
+        queryset = Origin.objects.filter(**complete_filter)
+
+        if order_by == 'relevance':
+            queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
+            queryset = queryset.order_by('-rate', 'id')
+
+        response_queryset = paginator(request, queryset)
+
+        serializer = AllOriginSerializer(response_queryset, many=True)
 
         content = {'data': serializer.data}
 
@@ -140,10 +160,7 @@ class SettingUserView(APIView):
         if False not in validation_set:
             serializer_user.save()
             serializer_profile.save()
-            return Response({'data': {
-                'main': serializer_user.data,
-                'additional': serializer_profile.data}
-            }, status=200)
+            return Response(status=200)
         return Response({'data': {
             'main_errors': serializer_user.errors,
             'additional_errors': serializer_profile.errors}

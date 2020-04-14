@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 
 
 def paginator(request, queryset):
-    page_size = int(request.GET.get('page_size', 3))
+    page_size = int(request.GET.get('page_size', 6))
     current_page = int(request.GET.get('current_page', 1))
 
     first_item = (current_page - 1) * page_size
@@ -30,7 +30,7 @@ class MainPageView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        last_origins = Origin.objects.all()[:6]
+        last_origins = Origin.objects.all()
         serializer = MainInfoOriginSerializer(last_origins, many=True)
 
         content = {'data': serializer.data}
@@ -56,8 +56,9 @@ class AllOriginView(APIView):
 
         complete_filter = {}
         for key, data in raw_filter.items():
-            filter_key = self.filter_name_set[key]
-            complete_filter[filter_key] = data
+            if key in self.filter_name_set:
+                filter_key = self.filter_name_set[key]
+                complete_filter[filter_key] = data
 
         queryset = Origin.objects.filter(**complete_filter)
 

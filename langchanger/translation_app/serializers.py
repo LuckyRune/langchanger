@@ -33,7 +33,7 @@ class OneOriginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Origin
-        fields = ('id', 'isbn', 'title', 'author', 'description', 'creation_date', 'genre',
+        fields = ('id', 'title', 'author', 'description', 'creation_date', 'genre',
                   'origin_language', 'format_type', 'age_limit', 'poster')
 
 
