@@ -200,8 +200,9 @@ class MakeTranslationView(APIView):
         translation = get_object_or_404(Translation, pk=translation_id)
 
         serializer_version = MakeVersionSerializer(data=request.data)
+        check_set = (serializer_version.is_valid(), request.user.id == translation.author.id)
 
-        if serializer_version.is_valid():
+        if False not in check_set:
             serializer_version.save(translation=translation)
             return Response(status=200)
         return Response(serializer_version.errors, status=400)
@@ -210,8 +211,10 @@ class MakeTranslationView(APIView):
         pk = int(request.POST.get('translation', -1))
 
         translation = get_object_or_404(Translation, pk=pk)
-        translation.delete()
-        return Response(status=200)
+        if request.user.id == translation.author.id:
+            translation.delete()
+            return Response(status=200)
+        return Response({'error': 'This user is not author of translation'}, status=400)
 
 
 class AllVersionView(APIView):
@@ -244,7 +247,7 @@ class DeleteVersionView(APIView):
         if translation.author.id == request.user.id:
             version.delete()
             return Response(status=200)
-        return Response(status=400)
+        return Response({'error': 'This user is not author of translation'}, status=400)
 
 
 class DifferencesVersionView(APIView):

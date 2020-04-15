@@ -10,7 +10,7 @@ admin.site.register(Language)
 
 @admin.register(Origin)
 class OriginAdmin(admin.ModelAdmin):
-    fields = ('isbn', 'title', 'author', 'description', 'creation_date',
+    fields = ('title', 'author', 'description', 'creation_date',
               'genre', ('origin_language', 'format_type'), 'age_limit',
               'poster', 'source_link')
     list_display = ('title', 'author', 'creation_date', 'origin_language', 'format_type')
@@ -18,7 +18,7 @@ class OriginAdmin(admin.ModelAdmin):
 
 @admin.register(Translation)
 class TranslationAdmin(admin.ModelAdmin):
-    fields = ('author', 'origin', 'language', 'creation_date', 'rate', 'translation_link')
+    fields = ('author', 'origin', 'language', 'creation_date', 'rate')
     list_display = ('author', 'language', 'origin', 'creation_date')
     readonly_fields = ('creation_date', )
 

@@ -175,9 +175,9 @@ class RegisterUserView(APIView):
     def post(self, request):
         serializer_user = RegisterUserSerializer(data=request.data)
         serializer_profile = PostUserProfileSerializer(data=request.data)
-        validation_set = (serializer_user.is_valid(), serializer_profile.is_valid())
+        check_set = (serializer_user.is_valid(), serializer_profile.is_valid())
 
-        if False not in validation_set:
+        if False not in check_set:
             user = serializer_user.save()
             serializer_profile.save(user=user)
             return Response(status=200)
