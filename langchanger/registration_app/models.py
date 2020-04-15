@@ -13,8 +13,9 @@ class UserProfile(models.Model):
 
     user = models.OneToOneField(User, related_name='user_profile',
                                 verbose_name='Основной пользователь', on_delete=models.CASCADE)
-    achievements = models.ManyToManyField('Achievement', verbose_name='Достижения', blank=True)
-    on_hold = models.ManyToManyField(Origin, verbose_name='Отложенное', blank=True)
+    achievements = models.ManyToManyField('Achievement', verbose_name='Достижения', related_name='user_profile_set',
+                                          blank=True)
+    on_hold = models.ManyToManyField(Origin, verbose_name='Отложенное', related_name='user_profile_set', blank=True)
 
     profile_icon_hash = models.CharField('Хеш аватарки', max_length=120, blank=True, null=True)
     profile_icon = models.ImageField('Аватарка', upload_to='images/', blank=True, null=True)
