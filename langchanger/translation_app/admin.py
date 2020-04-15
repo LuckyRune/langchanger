@@ -25,9 +25,9 @@ class TranslationAdmin(admin.ModelAdmin):
 
 @admin.register(Version)
 class VersionAdmin(admin.ModelAdmin):
-    fields = ('translation', 'change_number', 'creation_date', 'version_link')
-    list_display = ('translation', 'change_number', 'creation_date')
-    readonly_fields = ('change_number', 'creation_date')
+    fields = ('translation', 'creation_date', 'version_link')
+    list_display = ('translation', 'creation_date')
+    readonly_fields = ('creation_date', )
 
 
 @admin.register(RateList)
@@ -36,14 +36,8 @@ class RateListAdmin(admin.ModelAdmin):
     list_display = ('user', 'translation', 'rate')
 
 
-@admin.register(Comment)
-class CommentAdmin(admin.ModelAdmin):
-    fields = ('post', 'author', 'parent_comment', 'post_date')
-    list_display = ('author', 'post_date', 'parent_comment')
-    readonly_fields = ('post_date', )
-
-
 @admin.register(CommentOrigin)
 class CommentOriginAdmin(admin.ModelAdmin):
-    fields = ('comment', 'origin')
-    list_display = ('comment', 'origin')
+    fields = ('author', 'origin', 'post', 'parent_comment', 'post_date')
+    list_display = ('author', 'origin', 'parent_comment')
+    readonly_fields = ('post_date', )
