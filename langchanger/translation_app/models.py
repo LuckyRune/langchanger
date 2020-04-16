@@ -38,17 +38,16 @@ class Language(models.Model):
 
 
 class Origin(models.Model):
-    isbn = models.CharField('ISBN', max_length=13)
     title = models.CharField('Название книги', max_length=50)
     author = models.CharField('Автор', max_length=50, blank=True, null=True)
     description = models.TextField('Описание', max_length=1500, blank=True, null=True)
     creation_date = models.DateField('Дата создания', blank=True, null=True)
 
-    genre = models.ManyToManyField(Genre, verbose_name='Жанры', blank=True)
-    origin_language = models.ForeignKey(Language, verbose_name='Язык оригинала', on_delete=models.SET_NULL,
-                                        blank=True, null=True)
-    format_type = models.ForeignKey(FormatType, verbose_name='Формат книги', on_delete=models.SET_NULL,
-                                    blank=True, null=True)
+    genre = models.ManyToManyField(Genre, verbose_name='Жанры', related_name='origin_set', blank=True)
+    origin_language = models.ForeignKey(Language, verbose_name='Язык оригинала', related_name='origin_set',
+                                        on_delete=models.SET_NULL, blank=True, null=True)
+    format_type = models.ForeignKey(FormatType, verbose_name='Формат книги', related_name='origin_set',
+                                    on_delete=models.SET_NULL, blank=True, null=True)
 
     AGES = [
         ('0', '0'),
@@ -57,7 +56,7 @@ class Origin(models.Model):
         ('16', '16'),
         ('18', '18')
     ]
-    age_limit = models.CharField('Возрастной рейтинг', max_length=2, choices=AGES, default=AGES[-1])
+    age_limit = models.CharField('Возрастной рейтинг', max_length=2, choices=AGES, default='18')
 
     poster_hash = models.CharField('Хеш постера', max_length=120, blank=True, null=True)
     poster = models.ImageField('Постер произведения', upload_to='images/', blank=True, null=True)
@@ -79,14 +78,12 @@ class Translation(models.Model):
     creation_date = models.DateTimeField('Дата начала перевода', auto_now_add=True)
     rate = models.BigIntegerField('Оценка', default=0)
 
-    author = models.ForeignKey(User, related_name='translation_set', verbose_name='Автор',
+    author = models.ForeignKey(User, verbose_name='Автор', related_name='translation_set',
                                on_delete=models.SET_NULL, blank=True, null=True)
-    origin = models.ForeignKey(Origin, related_name='translation_set', verbose_name='Оригинал',
+    origin = models.ForeignKey(Origin, verbose_name='Оригинал', related_name='translation_set',
                                on_delete=models.SET_NULL, blank=True, null=True)
-    language = models.ForeignKey(Language, verbose_name='Язык', on_delete=models.SET_NULL, blank=True, null=True)
-
-    translation_hash = models.CharField('Хеш перевода', max_length=120, blank=True, null=True)
-    translation_link = models.FileField('Ссылка на перевод', upload_to='files/', blank=True, null=True)
+    language = models.ForeignKey(Language, verbose_name='Язык', related_name='translation_set',
+                                 on_delete=models.SET_NULL, blank=True, null=True)
 
     class Meta:
         verbose_name = 'Перевод'
@@ -102,7 +99,8 @@ class Translation(models.Model):
 class Version(models.Model):
     creation_date = models.DateTimeField('Дата создания', auto_now_add=True)
 
-    translation = models.ForeignKey(Translation, verbose_name='Основной перевод', on_delete=models.CASCADE)
+    translation = models.ForeignKey(Translation, verbose_name='Основной перевод', related_name='version_set',
+                                    on_delete=models.CASCADE)
 
     version_hash = models.CharField('Хеш версии', max_length=120, blank=True, null=True)
     version_link = models.FileField('Ссылка на версию', upload_to='files/', blank=True, null=True)
@@ -123,8 +121,8 @@ class RateList(models.Model):
     rate = models.SmallIntegerField('Оценка', default=0)
     rate_date = models.DateField('Дата оценивания', auto_now_add=True)
 
-    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.CASCADE)
-    translation = models.ForeignKey(Translation, related_name='rate_set', verbose_name='Перевод',
+    user = models.ForeignKey(User, verbose_name='Пользователь', related_name='rate_set', on_delete=models.CASCADE)
+    translation = models.ForeignKey(Translation, verbose_name='Перевод', related_name='rate_set',
                                     on_delete=models.CASCADE)
 
     class Meta:
@@ -143,10 +141,10 @@ class Comment(models.Model):
     post = models.TextField('Текст комментария', max_length=1000)
     post_date = models.DateTimeField('Дата создания', auto_now_add=True)
 
-    author = models.ForeignKey(User, related_name="%(class)s_set", verbose_name='Автор',
+    author = models.ForeignKey(User, verbose_name='Автор', related_name="%(class)s_set",
                                on_delete=models.SET_NULL, blank=True, null=True)
-    parent_comment = models.ForeignKey('self', related_name="%(class)s_child_set",
-                                       verbose_name='Родительский коментарий',
+    parent_comment = models.ForeignKey('self', verbose_name='Родительский коментарий',
+                                       related_name="%(class)s_child_set",
                                        on_delete=models.CASCADE, null=True, blank=True)
 
     class Meta:
@@ -154,7 +152,8 @@ class Comment(models.Model):
 
 
 class CommentOrigin(Comment):
-    origin = models.ForeignKey(Origin, verbose_name='Книга', on_delete=models.CASCADE)
+    origin = models.ForeignKey(Origin, verbose_name='Книга', related_name="comment_origin_set",
+                               on_delete=models.CASCADE)
 
     class Meta:
         verbose_name = 'Комментарий произведения'

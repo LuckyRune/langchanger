@@ -13,7 +13,7 @@ from django.contrib.auth.models import User
 
 
 def paginator(request, queryset):
-    page_size = int(request.GET.get('page_size', 3))
+    page_size = int(request.GET.get('page_size', 6))
     current_page = int(request.GET.get('current_page', 1))
 
     first_item = (current_page - 1) * page_size
@@ -30,7 +30,7 @@ class MainPageView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        last_origins = Origin.objects.all()[:6]
+        last_origins = Origin.objects.all()
         serializer = MainInfoOriginSerializer(last_origins, many=True)
 
         content = {'data': serializer.data}
@@ -56,8 +56,9 @@ class AllOriginView(APIView):
 
         complete_filter = {}
         for key, data in raw_filter.items():
-            filter_key = self.filter_name_set[key]
-            complete_filter[filter_key] = data
+            if key in self.filter_name_set:
+                filter_key = self.filter_name_set[key]
+                complete_filter[filter_key] = data
 
         queryset = Origin.objects.filter(**complete_filter)
 
@@ -199,8 +200,9 @@ class MakeTranslationView(APIView):
         translation = get_object_or_404(Translation, pk=translation_id)
 
         serializer_version = MakeVersionSerializer(data=request.data)
+        check_set = (serializer_version.is_valid(), request.user.id == translation.author.id)
 
-        if serializer_version.is_valid():
+        if False not in check_set:
             serializer_version.save(translation=translation)
             return Response(status=200)
         return Response(serializer_version.errors, status=400)
@@ -209,8 +211,10 @@ class MakeTranslationView(APIView):
         pk = int(request.POST.get('translation', -1))
 
         translation = get_object_or_404(Translation, pk=pk)
-        translation.delete()
-        return Response(status=200)
+        if request.user.id == translation.author.id:
+            translation.delete()
+            return Response(status=200)
+        return Response({'error': 'This user is not author of translation'}, status=400)
 
 
 class AllVersionView(APIView):
@@ -243,7 +247,7 @@ class DeleteVersionView(APIView):
         if translation.author.id == request.user.id:
             version.delete()
             return Response(status=200)
-        return Response(status=400)
+        return Response({'error': 'This user is not author of translation'}, status=400)
 
 
 class DifferencesVersionView(APIView):
