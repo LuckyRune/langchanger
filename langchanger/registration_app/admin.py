@@ -6,9 +6,8 @@ from .models import *
 # Register your models here.
 @admin.register(UserProfile)
 class UserProfileAdmin(admin.ModelAdmin):
-    fields = ('user', 'description', 'rate', 'profile_icon',
-              'achievements', 'on_hold')
-    list_display = ('user', 'rate')
+    fields = ('user', 'description', 'profile_icon', 'achievements', 'on_hold')
+    list_display = ('user', )
 
 
 @admin.register(Achievement)

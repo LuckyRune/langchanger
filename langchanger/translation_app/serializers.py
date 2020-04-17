@@ -1,7 +1,21 @@
 from rest_framework import serializers
 
+from django.db.models import Sum
+
 from .models import *
 from registration_app.serializers import RateUserSerializer, AllUserSerializer
+
+
+def get_user_with_rate(obj):
+    users = User.objects.filter(pk=obj.author.id).annotate(rate=Sum('translation_set__rate_set__rate'))
+
+    if not users:
+        return 'Deleted user'
+
+    user = users.first()
+
+    serializer = RateUserSerializer(user)
+    return serializer.data
 
 
 class GenreSerializer(serializers.ModelSerializer):
@@ -59,30 +73,38 @@ class ReadOriginSerializer(serializers.ModelSerializer):
         fields = ('id', 'source_link')
 
 
-class OriginTranslationSerializer(serializers.ModelSerializer):
-    author = RateUserSerializer()
+class TranslationByLanguageSerializer(serializers.ModelSerializer):
+    author = serializers.SerializerMethodField('get_author_data')
 
     class Meta:
         model = Translation
         fields = ('id', 'author')
 
+    def get_author_data(self, obj):
+        return get_user_with_rate(obj)
 
-class UserProfileTranslationSerializer(serializers.ModelSerializer):
+
+class AllTranslationSerializer(serializers.ModelSerializer):
+    rate = serializers.IntegerField(read_only=True)
 
     origin = MainInfoOriginSerializer()
     language = LanguageSerializer()
 
     class Meta:
         model = Translation
-        fields = ('id', 'author', 'rate', 'origin', 'language')
+        fields = ('id', 'creation_date', 'author', 'rate', 'origin', 'language')
 
 
 class ReadTranslationSerializer(serializers.ModelSerializer):
-    author = RateUserSerializer()
+    rate = serializers.IntegerField(read_only=True)
+    author = serializers.SerializerMethodField('get_author_data')
 
     class Meta:
         model = Translation
-        fields = ('id', 'rate', 'author', 'origin', 'language')
+        fields = ('id', 'origin', 'language', 'author', 'rate')
+
+    def get_author_data(self, obj):
+        return get_user_with_rate(obj)
 
 
 class MakeTranslationSerializer(serializers.ModelSerializer):

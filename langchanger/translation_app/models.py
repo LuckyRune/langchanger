@@ -76,7 +76,6 @@ class Origin(models.Model):
 
 class Translation(models.Model):
     creation_date = models.DateTimeField('Дата начала перевода', auto_now_add=True)
-    rate = models.BigIntegerField('Оценка', default=0)
 
     author = models.ForeignKey(User, verbose_name='Автор', related_name='translation_set',
                                on_delete=models.SET_NULL, blank=True, null=True)

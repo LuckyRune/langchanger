@@ -9,11 +9,11 @@ from rest_framework.renderers import JSONRenderer
 from .models import *
 from .serializers import *
 from translation_app.models import Translation, Origin
-from translation_app.serializers import UserProfileTranslationSerializer, MainInfoOriginSerializer, AllOriginSerializer
+from translation_app.serializers import AllTranslationSerializer, MainInfoOriginSerializer, AllOriginSerializer
 
 
 def paginator(request, queryset):
-    page_size = int(request.GET.get('page_size', 3))
+    page_size = int(request.GET.get('page_size', 6))
     current_page = int(request.GET.get('current_page', 1))
 
     first_item = (current_page - 1) * page_size
@@ -41,6 +41,7 @@ class AllUserView(APIView):
         queryset = User.objects.filter(is_staff=False)
         queryset = queryset.annotate(count_achievement=Count('user_profile__achievements'))
         queryset = queryset.annotate(count_translation=Count('translation_set'))
+        queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
 
         if order_by in self.ordering_set:
             queryset = queryset.order_by(self.ordering_set[order_by])
@@ -62,10 +63,15 @@ class ProfileUserView(APIView):
     def get(self, request):
         pk = int(request.GET.get('user', -1))
 
-        user = get_object_or_404(User, pk=pk)
-        translations = Translation.objects.filter(author=pk)
+        users = User.objects.filter(pk=pk).annotate(rate=Sum('translation_set__rate_set__rate'))
 
-        serializer_translations = UserProfileTranslationSerializer(translations, many=True)
+        if not users:
+            return Response(status=400)
+
+        user = users.first()
+        translations = Translation.objects.filter(author=pk).annotate(rate=Sum('rate_set__rate'))
+
+        serializer_translations = AllTranslationSerializer(translations, many=True)
         serializer_user = DetailedUserSerializer(user)
 
         content = {'data': {

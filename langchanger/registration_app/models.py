@@ -8,7 +8,6 @@ from translation_app.models import Origin
 # Create your models here.
 class UserProfile(models.Model):
 
-    rate = models.BigIntegerField('Общая оценка пользователя', default=0)
     description = models.TextField('О себе', max_length=1000, blank=True, null=True)
 
     user = models.OneToOneField(User, related_name='user_profile',
@@ -24,11 +23,8 @@ class UserProfile(models.Model):
         verbose_name = 'Профиль пользователя'
         verbose_name_plural = 'Профили пользователей'
 
-        ordering = ['rate']
-
     def __str__(self):
-        user_label = "{} ({})".format(self.user.username, self.rate)
-        return user_label
+        return self.user.username
 
 
 class Achievement(models.Model):
@@ -47,7 +43,3 @@ class Achievement(models.Model):
 
     def __str__(self):
         return self.name
-
-    def add_rate(self, user: UserProfile):
-        user.rate += self.rate
-

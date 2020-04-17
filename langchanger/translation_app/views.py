@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, get_list_or_404
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, F
 from django.http import Http404
+from django.contrib.auth.models import User
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,7 +10,7 @@ from rest_framework.renderers import JSONRenderer
 
 from .models import *
 from .serializers import *
-from django.contrib.auth.models import User
+from registration_app.serializers import RateUserSerializer
 
 
 def paginator(request, queryset):
@@ -107,15 +108,15 @@ class TranslationByLanguageView(APIView):
         origin = int(request.GET.get('origin', -1))
         language = int(request.GET.get('language', -1))
 
-        if origin != -1 and language != -1:
-            translations = Translation.objects.filter(
-                Q(origin=origin) &
-                Q(language=language)
-            )
-        else:
-            raise Http404
+        translations = Translation.objects.filter(
+            Q(origin=origin) &
+            Q(language=language)
+        )
 
-        serializer = OriginTranslationSerializer(translations, many=True)
+        if not translations:
+            return Response(status=400)
+
+        serializer = TranslationByLanguageSerializer(translations, many=True)
 
         content = {'data': serializer.data}
 
@@ -146,7 +147,12 @@ class ReadTranslationView(APIView):
     def get(self, request):
         pk = int(request.GET.get('translation', -1))
 
-        translation = get_object_or_404(Translation, pk=pk)
+        translations = Translation.objects.filter(pk=pk).annotate(rate=Sum('rate_set__rate'))
+
+        if not translations:
+            return Response(status=400)
+
+        translation = translations.first()
         last_version = Version.objects.filter(translation=pk).latest('creation_date')
 
         serializer_translation = ReadTranslationSerializer(translation)

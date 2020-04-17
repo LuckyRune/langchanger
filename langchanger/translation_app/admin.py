@@ -18,7 +18,7 @@ class OriginAdmin(admin.ModelAdmin):
 
 @admin.register(Translation)
 class TranslationAdmin(admin.ModelAdmin):
-    fields = ('author', 'origin', 'language', 'creation_date', 'rate')
+    fields = ('author', 'origin', 'language', 'creation_date')
     list_display = ('author', 'language', 'origin', 'creation_date')
     readonly_fields = ('creation_date', )
 
