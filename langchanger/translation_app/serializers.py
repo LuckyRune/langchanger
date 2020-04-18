@@ -3,7 +3,7 @@ from rest_framework import serializers
 from django.db.models import Sum
 
 from .models import *
-from registration_app.serializers import RateUserSerializer, AllUserSerializer
+from registration_app.serializers import RateUserSerializer
 
 
 def get_user_with_rate(obj):
@@ -51,13 +51,6 @@ class OneOriginSerializer(serializers.ModelSerializer):
                   'origin_language', 'format_type', 'age_limit', 'poster')
 
 
-class MainInfoOriginSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Origin
-        fields = ('id', 'title', 'author', 'poster')
-
-
 class AllOriginSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -86,22 +79,14 @@ class TranslationByLanguageSerializer(serializers.ModelSerializer):
 
 class AllTranslationSerializer(serializers.ModelSerializer):
     rate = serializers.IntegerField(read_only=True)
+    author = serializers.SerializerMethodField('get_author_data')
 
-    origin = MainInfoOriginSerializer()
+    origin = AllOriginSerializer()
     language = LanguageSerializer()
 
     class Meta:
         model = Translation
         fields = ('id', 'creation_date', 'author', 'rate', 'origin', 'language')
-
-
-class ReadTranslationSerializer(serializers.ModelSerializer):
-    rate = serializers.IntegerField(read_only=True)
-    author = serializers.SerializerMethodField('get_author_data')
-
-    class Meta:
-        model = Translation
-        fields = ('id', 'origin', 'language', 'author', 'rate')
 
     def get_author_data(self, obj):
         return get_user_with_rate(obj)
@@ -136,11 +121,14 @@ class AllVersionSerializer(serializers.ModelSerializer):
 
 
 class OriginCommentSerializer(serializers.ModelSerializer):
-    author = AllUserSerializer()
+    author = serializers.SerializerMethodField('get_author_data')
 
     class Meta:
         model = CommentOrigin
         fields = ('id', 'post', 'post_date', 'origin', 'author', 'parent_comment')
+
+    def get_author_data(self, obj):
+        return get_user_with_rate(obj)
 
 
 class MakeOriginCommentSerializer(serializers.ModelSerializer):

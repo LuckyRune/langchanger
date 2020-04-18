@@ -32,7 +32,7 @@ class MainPageView(APIView):
 
     def get(self, request):
         last_origins = Origin.objects.all()
-        serializer = MainInfoOriginSerializer(last_origins, many=True)
+        serializer = AllOriginSerializer(last_origins, many=True)
 
         content = {'data': serializer.data}
 
@@ -155,7 +155,7 @@ class ReadTranslationView(APIView):
         translation = translations.first()
         last_version = Version.objects.filter(translation=pk).latest('creation_date')
 
-        serializer_translation = ReadTranslationSerializer(translation)
+        serializer_translation = AllTranslationSerializer(translation)
         serializer_version = ReadVersionSerializer(last_version)
 
         content = {'data': {
@@ -316,6 +316,18 @@ class MakeRateView(APIView):
     renderer_classes = [JSONRenderer]
 
     def post(self, request):
+        user = int(request.POST.get('user', -1))
+        translation = int(request.POST.get('translation', -1))
+        rate = int(request.POST.get('rate', -1))
+
+        rate_list = RateList.objects.filter(user=user).filter(translation=translation)
+
+        if rate_list:
+            rate_object = rate_list.first()
+            rate_object.rate = rate
+            rate_object.save()
+            return Response(status=200)
+
         rate_serializer = MakeRateSerializer(data=request.data)
 
         if rate_serializer.is_valid():

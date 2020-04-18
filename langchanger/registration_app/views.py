@@ -9,7 +9,7 @@ from rest_framework.renderers import JSONRenderer
 from .models import *
 from .serializers import *
 from translation_app.models import Translation, Origin
-from translation_app.serializers import AllTranslationSerializer, MainInfoOriginSerializer, AllOriginSerializer
+from translation_app.serializers import AllTranslationSerializer, AllOriginSerializer
 
 
 def paginator(request, queryset):
