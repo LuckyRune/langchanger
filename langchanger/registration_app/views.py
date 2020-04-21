@@ -114,6 +114,9 @@ class OnHoldUserView(APIView):
     def get(self, request):
         raw_filter = request.GET.get('filters', {})
         order_by = request.GET.get('order', 'relevance')
+        user = int(request.GET.get('user', -1))
+
+        origin_list = get_object_or_404(UserProfile, user=user).on_hold
 
         complete_filter = {}
         for key, data in raw_filter.items():
@@ -121,7 +124,7 @@ class OnHoldUserView(APIView):
                 filter_key = self.filter_name_set[key]
                 complete_filter[filter_key] = data
 
-        queryset = Origin.objects.filter(**complete_filter)
+        queryset = origin_list.filter(**complete_filter)
 
         if order_by == 'relevance':
             queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
