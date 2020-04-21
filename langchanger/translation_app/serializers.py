@@ -40,7 +40,6 @@ class LanguageSerializer(serializers.ModelSerializer):
 
 
 class OneOriginSerializer(serializers.ModelSerializer):
-
     genre = GenreSerializer(many=True)
     format_type = FormatTypeSerializer()
     origin_language = LanguageSerializer()
@@ -52,6 +51,9 @@ class OneOriginSerializer(serializers.ModelSerializer):
 
 
 class AllOriginSerializer(serializers.ModelSerializer):
+    genre = GenreSerializer(many=True)
+    format_type = FormatTypeSerializer()
+    origin_language = LanguageSerializer()
 
     class Meta:
         model = Origin
