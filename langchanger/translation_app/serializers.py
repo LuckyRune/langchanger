@@ -107,6 +107,18 @@ class MakeVersionSerializer(serializers.ModelSerializer):
         model = Version
         fields = ('version_link', )
 
+    def validate_version_link(self, value):
+        max_file_size = 10 * 1023 ** 2
+        acceptable_format = 'pdf'
+
+        if value.size > max_file_size:
+            raise serializers.ValidationError('File is too big')
+
+        if value.name[-3:] != acceptable_format:
+            raise serializers.ValidationError(value.name[-3:])
+
+        return value
+
 
 class ReadVersionSerializer(serializers.ModelSerializer):
 
@@ -145,3 +157,9 @@ class MakeRateSerializer(serializers.ModelSerializer):
     class Meta:
         model = RateList
         fields = ('rate', 'user', 'translation')
+
+    def validate_rate(self, value):
+        if value not in (-1, 1):
+            raise serializers.ValidationError("Rate is out of possible values")
+
+        return value

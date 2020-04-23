@@ -146,7 +146,7 @@ class SettingUserView(APIView):
 
     def get(self, request):
         user = request.user
-        profile = UserProfile.objects.filter(user=user.id)
+        profile = UserProfile.objects.get(user=user.id)
 
         serializer_user = SettingUserSerializer(user)
         serializer_profile = PostUserProfileSerializer(profile)

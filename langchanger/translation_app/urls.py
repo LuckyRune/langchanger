@@ -23,4 +23,5 @@ urlpatterns = [
     url(r'^comment-origin/add/$', views.MakeOriginCommentView.as_view()),
 
     url(r'^rate/add/$', views.MakeRateView.as_view()),
+    url(r'^rate/delete/$', views.MakeRateView.as_view()),
 ]

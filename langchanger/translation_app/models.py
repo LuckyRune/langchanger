@@ -102,7 +102,7 @@ class Version(models.Model):
                                     on_delete=models.CASCADE)
 
     version_hash = models.CharField('Хеш версии', max_length=120, blank=True, null=True)
-    version_link = models.FileField('Ссылка на версию', upload_to='files/', blank=True, null=True)
+    version_link = models.FileField('Ссылка на версию', upload_to='files/')
 
     class Meta:
         verbose_name = 'Версия перевода'

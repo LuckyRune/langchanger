@@ -61,6 +61,15 @@ class PostUserProfileSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = ('description', 'profile_icon')
 
+    def validate_profile_icon(self, value):
+        max_image_size = 5 * 1023 ** 2
+        
+        if value:
+            if value.size > max_image_size:
+                raise serializers.ValidationError("icon is too big(max size - 5 Mb")
+
+        return value
+
 
 class SettingUserSerializer(serializers.ModelSerializer):
 

@@ -188,8 +188,11 @@ class MakeTranslationView(APIView):
         return Response(content)
 
     def post(self, request):
-        serializer_translation = MakeTranslationSerializer(data=request.data)
-        serializer_version = MakeVersionSerializer(data=request.data)
+        data = request.data.copy()
+        data['author'] = request.user.id
+
+        serializer_translation = MakeTranslationSerializer(data=data)
+        serializer_version = MakeVersionSerializer(data=data)
 
         if serializer_translation.is_valid() and serializer_version.is_valid():
             translation = serializer_translation.save()
@@ -208,10 +211,12 @@ class MakeTranslationView(APIView):
         serializer_version = MakeVersionSerializer(data=request.data)
         check_set = (serializer_version.is_valid(), request.user.id == translation.author.id)
 
-        if False not in check_set:
-            serializer_version.save(translation=translation)
-            return Response(status=200)
-        return Response(serializer_version.errors, status=400)
+        if request.user.id == translation.author.id:
+            if serializer_version.is_valid():
+                serializer_version.save(translation=translation)
+                return Response(status=200)
+            return Response(serializer_version.errors, status=400)
+        return Response({'errors': 'user is not author of translation'}, status=400)
 
     def delete(self, request):
         pk = int(request.POST.get('translation', -1))
@@ -316,19 +321,16 @@ class MakeRateView(APIView):
     renderer_classes = [JSONRenderer]
 
     def post(self, request):
-        user = int(request.POST.get('user', -1))
-        translation = int(request.POST.get('translation', -1))
-        rate = int(request.POST.get('rate', -1))
+        data = request.data.copy()
+        data['user'] = request.user.id
 
-        rate_list = RateList.objects.filter(user=user).filter(translation=translation)
+        rate_list = RateList.objects.filter(Q(user=data['user']) & Q(translation=data['translation']))
 
         if rate_list:
-            rate_object = rate_list.first()
-            rate_object.rate = rate
-            rate_object.save()
-            return Response(status=200)
-
-        rate_serializer = MakeRateSerializer(data=request.data)
+            rate = rate_list.first()
+            rate_serializer = MakeRateSerializer(rate, data=data)
+        else:
+            rate_serializer = MakeRateSerializer(data=data)
 
         if rate_serializer.is_valid():
             rate_serializer.save()
@@ -336,4 +338,18 @@ class MakeRateView(APIView):
             return Response(status=200)
         return Response(rate_serializer.errors, status=400)
 
+    def delete(self, request):
+        user = request.user.id
+        translation = int(request.POST.get('translation', -1))
+
+        rate_list = RateList.objects.filter(Q(user=user) & Q(translation=translation))
+
+        if rate_list:
+            rate = rate_list.first()
+            rate.delete()
+
+            return Response(status=200)
+        return Response({
+            'errors': "Request rate doesn't exist"
+        }, status=400)
 
