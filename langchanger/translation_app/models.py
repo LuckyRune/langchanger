@@ -2,6 +2,8 @@ from django.db import models
 
 from django.contrib.auth.models import User
 
+from file_app.models import OriginFile, OriginIcon, VersionFile
+
 
 # Create your models here.
 class Genre(models.Model):
@@ -58,10 +60,10 @@ class Origin(models.Model):
     ]
     age_limit = models.CharField('Возрастной рейтинг', max_length=2, choices=AGES, default='18')
 
-    poster_hash = models.CharField('Хеш постера', max_length=120, blank=True, null=True)
-    poster = models.ImageField('Постер произведения', upload_to='images/', blank=True, null=True)
-    source_hash = models.CharField('Хеш произведения', max_length=120, blank=True, null=True)
-    source_link = models.FileField('Ссылка на произведение', upload_to='files/', blank=True, null=True)
+    poster = models.ForeignKey(OriginIcon, verbose_name='Постер произведения', on_delete=models.SET_NULL,
+                               blank=True, null=True)
+    source_link = models.ForeignKey(OriginFile, verbose_name='Ссылка на произведение', on_delete=models.SET_NULL,
+                                    blank=True, null=True)
 
     class Meta:
         verbose_name = 'Оригинал'
@@ -101,8 +103,8 @@ class Version(models.Model):
     translation = models.ForeignKey(Translation, verbose_name='Основной перевод', related_name='version_set',
                                     on_delete=models.CASCADE)
 
-    version_hash = models.CharField('Хеш версии', max_length=120, blank=True, null=True)
-    version_link = models.FileField('Ссылка на версию', upload_to='files/')
+    version_link = models.ForeignKey(VersionFile, verbose_name='Ссылка на версию', on_delete=models.SET_NULL,
+                                     blank=True, null=True)
 
     class Meta:
         verbose_name = 'Версия перевода'

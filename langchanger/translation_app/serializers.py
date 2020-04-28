@@ -4,6 +4,7 @@ from django.db.models import Sum
 
 from .models import *
 from registration_app.serializers import RateUserSerializer
+from file_app.serializers import OriginFileSerializer, OriginIconSerializer, VersionFileSerializer
 
 
 def get_user_with_rate(obj):
@@ -43,6 +44,7 @@ class OneOriginSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True)
     format_type = FormatTypeSerializer()
     origin_language = LanguageSerializer()
+    poster = OriginIconSerializer()
 
     class Meta:
         model = Origin
@@ -54,6 +56,7 @@ class AllOriginSerializer(serializers.ModelSerializer):
     genre = GenreSerializer(many=True)
     format_type = FormatTypeSerializer()
     origin_language = LanguageSerializer()
+    poster = OriginIconSerializer()
 
     class Meta:
         model = Origin
@@ -62,6 +65,7 @@ class AllOriginSerializer(serializers.ModelSerializer):
 
 
 class ReadOriginSerializer(serializers.ModelSerializer):
+    source_link = OriginFileSerializer()
 
     class Meta:
         model = Origin
@@ -102,25 +106,27 @@ class MakeTranslationSerializer(serializers.ModelSerializer):
 
 
 class MakeVersionSerializer(serializers.ModelSerializer):
+    version_link = VersionFileSerializer()
 
     class Meta:
         model = Version
         fields = ('version_link', )
 
-    def validate_version_link(self, value):
-        max_file_size = 10 * 1023 ** 2
-        acceptable_format = 'pdf'
-
-        if value.size > max_file_size:
-            raise serializers.ValidationError('File is too big')
-
-        if value.name[-3:] != acceptable_format:
-            raise serializers.ValidationError(value.name[-3:])
-
-        return value
+    # def validate_version_link(self, value):
+    #     max_file_size = 10 * 1023 ** 2
+    #     acceptable_format = 'pdf'
+    #
+    #     if value.size > max_file_size:
+    #         raise serializers.ValidationError('File is too big')
+    #
+    #     if value.name[-3:] != acceptable_format:
+    #         raise serializers.ValidationError(value.name[-3:])
+    #
+    #     return value
 
 
 class ReadVersionSerializer(serializers.ModelSerializer):
+    version_link = VersionFileSerializer()
 
     class Meta:
         model = Version

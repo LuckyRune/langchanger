@@ -2,9 +2,11 @@ from rest_framework import serializers
 
 from .models import *
 from django.contrib.auth.models import User
+from file_app.serializers import AchievementIconSerializer, UserIconSerializer
 
 
 class AchievementSerializer(serializers.ModelSerializer):
+    icon = AchievementIconSerializer()
 
     class Meta:
         model = Achievement
@@ -12,6 +14,7 @@ class AchievementSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    profile_icon = UserIconSerializer()
 
     class Meta:
         model = UserProfile
@@ -28,7 +31,8 @@ class DetailedUserSerializer(serializers.ModelSerializer):
         fields = ('id', 'username', 'email', 'rate', 'user_profile')
 
 
-class AllUserProfileSerializer(serializers.ModelSerializer):
+class IconUserProfileSerializer(serializers.ModelSerializer):
+    profile_icon = UserIconSerializer()
 
     class Meta:
         model = UserProfile
@@ -40,7 +44,7 @@ class AllUserSerializer(serializers.ModelSerializer):
     count_translation = serializers.IntegerField(read_only=True)
     rate = serializers.IntegerField(read_only=True)
 
-    user_profile = AllUserProfileSerializer()
+    user_profile = IconUserProfileSerializer()
 
     class Meta:
         model = User
@@ -56,19 +60,20 @@ class RateUserSerializer(serializers.ModelSerializer):
 
 
 class PostUserProfileSerializer(serializers.ModelSerializer):
+    profile_icon = UserIconSerializer()
 
     class Meta:
         model = UserProfile
         fields = ('description', 'profile_icon')
 
-    def validate_profile_icon(self, value):
-        max_image_size = 5 * 1023 ** 2
-        
-        if value:
-            if value.size > max_image_size:
-                raise serializers.ValidationError("icon is too big(max size - 5 Mb")
-
-        return value
+    # def validate_profile_icon(self, value):
+    #     max_image_size = 5 * 1023 ** 2
+    #
+    #     if value:
+    #         if value.size > max_image_size:
+    #             raise serializers.ValidationError("icon is too big(max size - 5 Mb")
+    #
+    #     return value
 
 
 class SettingUserSerializer(serializers.ModelSerializer):

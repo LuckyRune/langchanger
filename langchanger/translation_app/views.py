@@ -177,7 +177,7 @@ class MakeTranslationView(APIView):
         translation = get_object_or_404(Translation, pk=pk)
         last_version = Version.objects.filter(translation=pk).latest('creation_date')
 
-        serializer_translation = ReadTranslationSerializer(translation)
+        serializer_translation = AllTranslationSerializer(translation)
         serializer_version = ReadVersionSerializer(last_version)
 
         content = {'data': {

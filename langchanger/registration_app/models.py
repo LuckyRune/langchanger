@@ -3,6 +3,7 @@ from django.db import models
 from django.contrib.auth.models import User
 
 from translation_app.models import Origin
+from file_app.models import UserIcon, AchievementIcon
 
 
 # Create your models here.
@@ -16,8 +17,8 @@ class UserProfile(models.Model):
                                           blank=True)
     on_hold = models.ManyToManyField(Origin, verbose_name='Отложенное', related_name='user_profile_set', blank=True)
 
-    profile_icon_hash = models.CharField('Хеш аватарки', max_length=120, blank=True, null=True)
-    profile_icon = models.ImageField('Аватарка', upload_to='images/', blank=True, null=True)
+    profile_icon = models.ForeignKey(UserIcon, verbose_name='Аватарка', on_delete=models.SET_NULL,
+                                     blank=True, null=True)
 
     class Meta:
         verbose_name = 'Профиль пользователя'
@@ -32,8 +33,8 @@ class Achievement(models.Model):
     description = models.TextField('Описание', max_length=500, blank=True, null=True)
     rate = models.IntegerField('Стоимость', default=1)
 
-    icon_hash = models.CharField('Хеш иконки', max_length=120, blank=True, null=True)
-    icon = models.ImageField('Иконка', upload_to='images/', blank=True, null=True)
+    icon = models.ForeignKey(AchievementIcon, verbose_name='Иконка', on_delete=models.SET_NULL,
+                             blank=True, null=True)
 
     class Meta:
         verbose_name = 'Достижение'
