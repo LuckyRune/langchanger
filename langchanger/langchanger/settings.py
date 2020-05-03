@@ -48,6 +48,7 @@ INSTALLED_APPS = [
 
     'registration_app',
     'translation_app',
+    'file_app',
 ]
 
 MIDDLEWARE = [

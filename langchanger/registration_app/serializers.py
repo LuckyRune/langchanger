@@ -2,9 +2,11 @@ from rest_framework import serializers
 
 from .models import *
 from django.contrib.auth.models import User
+from file_app.serializers import AchievementIconSerializer, UserIconSerializer
 
 
 class AchievementSerializer(serializers.ModelSerializer):
+    icon = AchievementIconSerializer()
 
     class Meta:
         model = Achievement
@@ -12,58 +14,56 @@ class AchievementSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    profile_icon = UserIconSerializer()
 
     class Meta:
         model = UserProfile
-        fields = ('id', 'rate', 'description', 'achievements', 'on_hold', 'profile_icon')
+        fields = ('description', 'achievements', 'on_hold', 'profile_icon')
 
 
 class DetailedUserSerializer(serializers.ModelSerializer):
+    rate = serializers.IntegerField(read_only=True)
+
     user_profile = UserProfileSerializer()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'user_profile')
+        fields = ('id', 'username', 'email', 'rate', 'user_profile')
 
 
-class AllUserProfileSerializer(serializers.ModelSerializer):
+class IconUserProfileSerializer(serializers.ModelSerializer):
+    profile_icon = UserIconSerializer()
 
     class Meta:
         model = UserProfile
-        fields = ('id', 'rate', 'profile_icon')
+        fields = ('profile_icon', )
 
 
 class AllUserSerializer(serializers.ModelSerializer):
-    user_profile = AllUserProfileSerializer()
     count_achievement = serializers.IntegerField(read_only=True)
     count_translation = serializers.IntegerField(read_only=True)
+    rate = serializers.IntegerField(read_only=True)
+
+    user_profile = IconUserProfileSerializer()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'user_profile', 'count_achievement', 'count_translation')
-
-
-class RateUserProfileSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = UserProfile
-        fields = ('rate', )
+        fields = ('id', 'username', 'email', 'rate', 'count_achievement', 'count_translation', 'user_profile')
 
 
 class RateUserSerializer(serializers.ModelSerializer):
-
-    user_profile = RateUserProfileSerializer()
+    rate = serializers.IntegerField(read_only=True)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'user_profile')
+        fields = ('id', 'username', 'rate')
 
 
 class PostUserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ('description', 'profile_icon')
+        fields = ('description', )
 
 
 class SettingUserSerializer(serializers.ModelSerializer):

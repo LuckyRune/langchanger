@@ -8,12 +8,17 @@ from rest_framework.renderers import JSONRenderer
 
 from .models import *
 from .serializers import *
-from translation_app.models import Translation, Origin
-from translation_app.serializers import UserProfileTranslationSerializer, MainInfoOriginSerializer, AllOriginSerializer
+
+from translation_app.models import Translation
+from translation_app.serializers import AllTranslationSerializer, AllOriginSerializer
+
+from file_app.serializers import UserIconSerializer
+from file_app.models import UserIcon
+from file_app.bot import send_image
 
 
 def paginator(request, queryset):
-    page_size = int(request.GET.get('page_size', 3))
+    page_size = int(request.GET.get('page_size', 6))
     current_page = int(request.GET.get('current_page', 1))
 
     first_item = (current_page - 1) * page_size
@@ -41,6 +46,7 @@ class AllUserView(APIView):
         queryset = User.objects.filter(is_staff=False)
         queryset = queryset.annotate(count_achievement=Count('user_profile__achievements'))
         queryset = queryset.annotate(count_translation=Count('translation_set'))
+        queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
 
         if order_by in self.ordering_set:
             queryset = queryset.order_by(self.ordering_set[order_by])
@@ -62,10 +68,15 @@ class ProfileUserView(APIView):
     def get(self, request):
         pk = int(request.GET.get('user', -1))
 
-        user = get_object_or_404(User, pk=pk)
-        translations = Translation.objects.filter(author=pk)
+        users = User.objects.filter(pk=pk).annotate(rate=Sum('translation_set__rate_set__rate'))
 
-        serializer_translations = UserProfileTranslationSerializer(translations, many=True)
+        if not users:
+            return Response(status=400)
+
+        user = users.first()
+        translations = Translation.objects.filter(author=pk).annotate(rate=Sum('rate_set__rate'))
+
+        serializer_translations = AllTranslationSerializer(translations, many=True)
         serializer_user = DetailedUserSerializer(user)
 
         content = {'data': {
@@ -108,6 +119,9 @@ class OnHoldUserView(APIView):
     def get(self, request):
         raw_filter = request.GET.get('filters', {})
         order_by = request.GET.get('order', 'relevance')
+        user = int(request.GET.get('user', -1))
+
+        origin_list = get_object_or_404(UserProfile, user=user).on_hold
 
         complete_filter = {}
         for key, data in raw_filter.items():
@@ -115,7 +129,7 @@ class OnHoldUserView(APIView):
                 filter_key = self.filter_name_set[key]
                 complete_filter[filter_key] = data
 
-        queryset = Origin.objects.filter(**complete_filter)
+        queryset = origin_list.filter(**complete_filter)
 
         if order_by == 'relevance':
             queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
@@ -137,7 +151,7 @@ class SettingUserView(APIView):
 
     def get(self, request):
         user = request.user
-        profile = UserProfile.objects.filter(user=user.id)
+        profile = UserProfile.objects.get(user=user.id)
 
         serializer_user = SettingUserSerializer(user)
         serializer_profile = PostUserProfileSerializer(profile)
@@ -152,18 +166,33 @@ class SettingUserView(APIView):
     def put(self, request):
         user = request.user
         profile = UserProfile.objects.get(user=user.id)
+        profile_icon = UserIcon.objects.get(id=profile.profile_icon.id)
 
         serializer_user = SettingUserSerializer(user, data=request.data)
         serializer_profile = PostUserProfileSerializer(profile, data=request.data)
-        validation_set = (serializer_user.is_valid(), serializer_profile.is_valid())
 
-        if False not in validation_set:
+        check_set = (serializer_user.is_valid(), serializer_profile.is_valid())
+
+        if False not in check_set:
             serializer_user.save()
             serializer_profile.save()
+
+            if request.data.get('image', False):
+                serializer_profile_icon = UserIconSerializer(profile_icon, data=request.data)
+
+                if serializer_profile_icon.is_valid():
+                    tg_hash = send_image(document=request.data['image'].open(), chat='UserIcon')
+                    serializer_profile_icon.save(tg_hash=tg_hash)
+                else:
+                    return Response({
+                        'image_errors': serializer_profile_icon.errors
+                    }, status=400)
+
             return Response(status=200)
-        return Response({'data': {
+
+        return Response({
             'main_errors': serializer_user.errors,
-            'additional_errors': serializer_profile.errors}
+            'profile_errors': serializer_profile.errors
         }, status=400)
 
 
@@ -175,13 +204,30 @@ class RegisterUserView(APIView):
     def post(self, request):
         serializer_user = RegisterUserSerializer(data=request.data)
         serializer_profile = PostUserProfileSerializer(data=request.data)
+
         check_set = (serializer_user.is_valid(), serializer_profile.is_valid())
 
         if False not in check_set:
             user = serializer_user.save()
-            serializer_profile.save(user=user)
+
+            if request.data.get('image', False):
+                serializer_profile_icon = UserIconSerializer(data=request.data)
+
+                if serializer_profile_icon.is_valid():
+                    tg_hash = send_image(document=request.data['image'].open(), chat='UserIcon')
+                    icon = serializer_profile_icon.save(tg_hash=tg_hash)
+                else:
+                    return Response({
+                        'image_errors': serializer_profile_icon.errors
+                    }, status=400)
+
+                serializer_profile.save(user=user, profile_icon=icon)
+            else:
+                serializer_profile.save(user=user)
+
             return Response(status=200)
+
         return Response({
             'main_errors': serializer_user.errors,
-            'additional_errors': serializer_profile.errors
+            'profile_errors': serializer_profile.errors
         }, status=400)

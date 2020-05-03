@@ -1,6 +1,7 @@
 from django.shortcuts import get_object_or_404, get_list_or_404
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, F
 from django.http import Http404
+from django.contrib.auth.models import User
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -9,7 +10,11 @@ from rest_framework.renderers import JSONRenderer
 
 from .models import *
 from .serializers import *
-from django.contrib.auth.models import User
+from registration_app.serializers import RateUserSerializer
+
+from file_app.serializers import VersionFileSerializer
+from file_app.models import VersionFile
+from file_app.bot import send_file
 
 
 def paginator(request, queryset):
@@ -31,7 +36,7 @@ class MainPageView(APIView):
 
     def get(self, request):
         last_origins = Origin.objects.all()
-        serializer = MainInfoOriginSerializer(last_origins, many=True)
+        serializer = AllOriginSerializer(last_origins, many=True)
 
         content = {'data': serializer.data}
 
@@ -107,15 +112,15 @@ class TranslationByLanguageView(APIView):
         origin = int(request.GET.get('origin', -1))
         language = int(request.GET.get('language', -1))
 
-        if origin != -1 and language != -1:
-            translations = Translation.objects.filter(
-                Q(origin=origin) &
-                Q(language=language)
-            )
-        else:
-            raise Http404
+        translations = Translation.objects.filter(
+            Q(origin=origin) &
+            Q(language=language)
+        )
 
-        serializer = OriginTranslationSerializer(translations, many=True)
+        if not translations:
+            return Response(status=400)
+
+        serializer = TranslationByLanguageSerializer(translations, many=True)
 
         content = {'data': serializer.data}
 
@@ -146,10 +151,15 @@ class ReadTranslationView(APIView):
     def get(self, request):
         pk = int(request.GET.get('translation', -1))
 
-        translation = get_object_or_404(Translation, pk=pk)
+        translations = Translation.objects.filter(pk=pk).annotate(rate=Sum('rate_set__rate'))
+
+        if not translations:
+            return Response(status=400)
+
+        translation = translations.first()
         last_version = Version.objects.filter(translation=pk).latest('creation_date')
 
-        serializer_translation = ReadTranslationSerializer(translation)
+        serializer_translation = AllTranslationSerializer(translation)
         serializer_version = ReadVersionSerializer(last_version)
 
         content = {'data': {
@@ -171,7 +181,7 @@ class MakeTranslationView(APIView):
         translation = get_object_or_404(Translation, pk=pk)
         last_version = Version.objects.filter(translation=pk).latest('creation_date')
 
-        serializer_translation = ReadTranslationSerializer(translation)
+        serializer_translation = AllTranslationSerializer(translation)
         serializer_version = ReadVersionSerializer(last_version)
 
         content = {'data': {
@@ -182,16 +192,30 @@ class MakeTranslationView(APIView):
         return Response(content)
 
     def post(self, request):
-        serializer_translation = MakeTranslationSerializer(data=request.data)
-        serializer_version = MakeVersionSerializer(data=request.data)
+        data = request.data.copy()
+        data['author'] = request.user.id
 
-        if serializer_translation.is_valid() and serializer_version.is_valid():
+        serializer_translation = MakeTranslationSerializer(data=data)
+        serializer_file = VersionFileSerializer(data=data)
+
+        check_set = (
+            serializer_translation.is_valid(),
+            serializer_file.is_valid(),
+        )
+
+        if False not in check_set:
             translation = serializer_translation.save()
-            serializer_version.save(translation=translation)
+
+            tg_hash = send_file(document=request.data['file'].open(), chat='VersionFile')
+            file = serializer_file.save(tg_hash=tg_hash)
+
+            Version.objects.create(translation=translation, version_link=file)
+
             return Response(status=200)
+
         return Response(
             {'translation_errors': serializer_translation.errors,
-             'version_errors': serializer_version.errors},
+             'file_errors': serializer_file.errors},
             status=400)
 
     def put(self, request):
@@ -199,20 +223,29 @@ class MakeTranslationView(APIView):
 
         translation = get_object_or_404(Translation, pk=translation_id)
 
-        serializer_version = MakeVersionSerializer(data=request.data)
-        check_set = (serializer_version.is_valid(), request.user.id == translation.author.id)
+        serializer_file = VersionFileSerializer(data=request.data)
 
-        if False not in check_set:
-            serializer_version.save(translation=translation)
-            return Response(status=200)
-        return Response(serializer_version.errors, status=400)
+        if request.user.id == translation.author.id:
+            if serializer_file.is_valid():
+                tg_hash = send_file(document=request.data['file'].open(), chat='VersionFile')
+                file = serializer_file.save(tg_hash=tg_hash)
+
+                Version.objects.create(translation=translation, version_link=file)
+
+                return Response(status=200)
+            return Response(serializer_version.errors, status=400)
+        return Response({'errors': 'user is not author of translation'}, status=400)
 
     def delete(self, request):
         pk = int(request.POST.get('translation', -1))
 
         translation = get_object_or_404(Translation, pk=pk)
+        file_id_set = Version.objects.filter(translation=translation.id).values('version_link')
+
         if request.user.id == translation.author.id:
+            VersionFile.objects.filter(id__in=file_id_set).delete()
             translation.delete()
+
             return Response(status=200)
         return Response({'error': 'This user is not author of translation'}, status=400)
 
@@ -242,10 +275,11 @@ class DeleteVersionView(APIView):
         pk = int(request.POST.get('version', -1))
 
         version = get_object_or_404(Version, pk=pk)
+        file = VersionFile.objects.get(id=version.version_link.id)
         translation = Translation.objects.get(pk=version.translation.id)
 
         if translation.author.id == request.user.id:
-            version.delete()
+            file.delete()
             return Response(status=200)
         return Response({'error': 'This user is not author of translation'}, status=400)
 
@@ -310,7 +344,16 @@ class MakeRateView(APIView):
     renderer_classes = [JSONRenderer]
 
     def post(self, request):
-        rate_serializer = MakeRateSerializer(data=request.data)
+        data = request.data.copy()
+        data['user'] = request.user.id
+
+        rate_list = RateList.objects.filter(Q(user=data['user']) & Q(translation=data['translation']))
+
+        if rate_list:
+            rate = rate_list.first()
+            rate_serializer = MakeRateSerializer(rate, data=data)
+        else:
+            rate_serializer = MakeRateSerializer(data=data)
 
         if rate_serializer.is_valid():
             rate_serializer.save()
@@ -318,4 +361,18 @@ class MakeRateView(APIView):
             return Response(status=200)
         return Response(rate_serializer.errors, status=400)
 
+    def delete(self, request):
+        user = request.user.id
+        translation = int(request.POST.get('translation', -1))
+
+        rate_list = RateList.objects.filter(Q(user=user) & Q(translation=translation))
+
+        if rate_list:
+            rate = rate_list.first()
+            rate.delete()
+
+            return Response(status=200)
+        return Response({
+            'errors': "Request rate doesn't exist"
+        }, status=400)
 
