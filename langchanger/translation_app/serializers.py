@@ -106,23 +106,10 @@ class MakeTranslationSerializer(serializers.ModelSerializer):
 
 
 class MakeVersionSerializer(serializers.ModelSerializer):
-    version_link = VersionFileSerializer()
 
     class Meta:
         model = Version
-        fields = ('version_link', )
-
-    # def validate_version_link(self, value):
-    #     max_file_size = 10 * 1023 ** 2
-    #     acceptable_format = 'pdf'
-    #
-    #     if value.size > max_file_size:
-    #         raise serializers.ValidationError('File is too big')
-    #
-    #     if value.name[-3:] != acceptable_format:
-    #         raise serializers.ValidationError(value.name[-3:])
-    #
-    #     return value
+        fields = ()
 
 
 class ReadVersionSerializer(serializers.ModelSerializer):

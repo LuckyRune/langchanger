@@ -103,7 +103,7 @@ class Version(models.Model):
     translation = models.ForeignKey(Translation, verbose_name='Основной перевод', related_name='version_set',
                                     on_delete=models.CASCADE)
 
-    version_link = models.ForeignKey(VersionFile, verbose_name='Ссылка на версию', on_delete=models.SET_NULL,
+    version_link = models.ForeignKey(VersionFile, verbose_name='Ссылка на версию', on_delete=models.CASCADE,
                                      blank=True, null=True)
 
     class Meta:

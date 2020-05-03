@@ -8,8 +8,13 @@ from rest_framework.renderers import JSONRenderer
 
 from .models import *
 from .serializers import *
-from translation_app.models import Translation, Origin
+
+from translation_app.models import Translation
 from translation_app.serializers import AllTranslationSerializer, AllOriginSerializer
+
+from file_app.serializers import UserIconSerializer
+from file_app.models import UserIcon
+from file_app.bot import send_image
 
 
 def paginator(request, queryset):
@@ -161,18 +166,33 @@ class SettingUserView(APIView):
     def put(self, request):
         user = request.user
         profile = UserProfile.objects.get(user=user.id)
+        profile_icon = UserIcon.objects.get(id=profile.profile_icon.id)
 
         serializer_user = SettingUserSerializer(user, data=request.data)
         serializer_profile = PostUserProfileSerializer(profile, data=request.data)
-        validation_set = (serializer_user.is_valid(), serializer_profile.is_valid())
 
-        if False not in validation_set:
+        check_set = (serializer_user.is_valid(), serializer_profile.is_valid())
+
+        if False not in check_set:
             serializer_user.save()
             serializer_profile.save()
+
+            if request.data.get('image', False):
+                serializer_profile_icon = UserIconSerializer(profile_icon, data=request.data)
+
+                if serializer_profile_icon.is_valid():
+                    tg_hash = send_image(document=request.data['image'].open(), chat='UserIcon')
+                    serializer_profile_icon.save(tg_hash=tg_hash)
+                else:
+                    return Response({
+                        'image_errors': serializer_profile_icon.errors
+                    }, status=400)
+
             return Response(status=200)
-        return Response({'data': {
+
+        return Response({
             'main_errors': serializer_user.errors,
-            'additional_errors': serializer_profile.errors}
+            'profile_errors': serializer_profile.errors
         }, status=400)
 
 
@@ -184,13 +204,30 @@ class RegisterUserView(APIView):
     def post(self, request):
         serializer_user = RegisterUserSerializer(data=request.data)
         serializer_profile = PostUserProfileSerializer(data=request.data)
+
         check_set = (serializer_user.is_valid(), serializer_profile.is_valid())
 
         if False not in check_set:
             user = serializer_user.save()
-            serializer_profile.save(user=user)
+
+            if request.data.get('image', False):
+                serializer_profile_icon = UserIconSerializer(data=request.data)
+
+                if serializer_profile_icon.is_valid():
+                    tg_hash = send_image(document=request.data['image'].open(), chat='UserIcon')
+                    icon = serializer_profile_icon.save(tg_hash=tg_hash)
+                else:
+                    return Response({
+                        'image_errors': serializer_profile_icon.errors
+                    }, status=400)
+
+                serializer_profile.save(user=user, profile_icon=icon)
+            else:
+                serializer_profile.save(user=user)
+
             return Response(status=200)
+
         return Response({
             'main_errors': serializer_user.errors,
-            'additional_errors': serializer_profile.errors
+            'profile_errors': serializer_profile.errors
         }, status=400)

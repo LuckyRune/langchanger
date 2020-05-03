@@ -12,5 +12,5 @@ class UserProfileAdmin(admin.ModelAdmin):
 
 @admin.register(Achievement)
 class AchievementAdmin(admin.ModelAdmin):
-    fields = ('name', 'description', 'rate')
+    fields = ('name', 'description', 'rate', 'icon')
     list_display = ('name', 'rate')
