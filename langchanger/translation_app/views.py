@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, get_list_or_404
-from django.db.models import Q, Sum, F
+from django.db.models import Q, Sum, F, Value, IntegerField
 from django.http import Http404
 from django.contrib.auth.models import User
 
@@ -69,6 +69,11 @@ class AllOriginView(APIView):
 
         if order_by == 'relevance':
             queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
+
+            queryset_not_null = queryset.filter(rate__isnull=False)
+            queryset_null = queryset.filter(rate__isnull=True).annotate(rate=Value(0, IntegerField()))
+            queryset = queryset_not_null.union(queryset_null)
+
             queryset = queryset.order_by('-rate', 'id')
 
         response_queryset = paginator(request, queryset)
