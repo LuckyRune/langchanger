@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, get_list_or_404
-from django.db.models import Q, Sum, F
+from django.db.models import Q, Sum, F, Value, IntegerField
 from django.http import Http404
 from django.contrib.auth.models import User
 
