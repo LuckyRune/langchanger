@@ -35,7 +35,7 @@ class AllUserView(APIView):
     renderer_classes = [JSONRenderer]
 
     ordering_set = {
-        'rate': '-user_profile__rate',
+        'rate': '-rate',
         'achievement': '-count_achievement',
         'translation': '-count_translation',
     }
