@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Value, IntegerField
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -47,6 +47,10 @@ class AllUserView(APIView):
         queryset = queryset.annotate(count_achievement=Count('user_profile__achievements'))
         queryset = queryset.annotate(count_translation=Count('translation_set'))
         queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
+
+        queryset_not_null = queryset.filter(rate__isnull=False)
+        queryset_null = queryset.filter(rate__isnull=True).annotate(rate=Value(0, IntegerField()))
+        queryset = queryset_not_null.union(queryset_null)
 
         if order_by in self.ordering_set:
             queryset = queryset.order_by(self.ordering_set[order_by])
@@ -133,6 +137,11 @@ class OnHoldUserView(APIView):
 
         if order_by == 'relevance':
             queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
+
+            queryset_not_null = queryset.filter(rate__isnull=False)
+            queryset_null = queryset.filter(rate__isnull=True).annotate(rate=Value(0, IntegerField()))
+            queryset = queryset_not_null.union(queryset_null)
+
             queryset = queryset.order_by('-rate', 'id')
 
         response_queryset = paginator(request, queryset)
