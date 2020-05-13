@@ -1,6 +1,6 @@
 <template>
   <div class="svg-placeholder" :style="{ width: width + 'px', height: height + 'px'}">
-    <img src="@/assets/svg/book.svg">
+    <img :src="poster" :style="{ width: width + 'px', height: height + 'px'}">
   </div>
 </template>
 
@@ -10,7 +10,8 @@ export default {
 
     props: {
         width: String,
-        height: String
+        height: String,
+        poster: String
     }
 }
 </script>
@@ -18,6 +19,10 @@ export default {
 <style scoped>
 div {
   width: 126px;
+  height: 200px;
+}
+img {
+  width: 130px;
   height: 200px;
 }
 </style>

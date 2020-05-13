@@ -4,7 +4,7 @@
       <template v-slot:header>Библиотека</template>
       <template v-slot:header-desc>На данной странице отображены книги, отсортированные по актуальности.</template>
     </PageHeader>
-    <section>
+    <section class="book-list">
       <aside>
         <div>
             <h4>Сортировка</h4>
@@ -84,7 +84,7 @@
         </div>
       </aside>
       <section>
-
+        <OriginTable/>
       </section>
     </section>
   </DefaultLayout>
@@ -94,6 +94,7 @@
 import DefaultLayout from '@/layouts/DefaultLayout'
 import Pagination from '@/components/Pagination'
 import PageHeader from '@/components/PageHeader'
+import OriginTable from '@/components/OriginTable'
 
 export default {
     name: 'Library',
@@ -104,7 +105,8 @@ export default {
     components: {
         DefaultLayout,
         Pagination,
-        PageHeader
+        PageHeader,
+        OriginTable
     },
 
 }
@@ -122,8 +124,13 @@ h4 {
   color: var(--primary);
 }
 
+.book-list {
+  display: flex;
+}
+
 aside {
-  margin-top: 80px;
+  margin-top: 50px;
+  margin-right: 60px;
 }
 
 aside div {

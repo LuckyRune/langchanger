@@ -12,9 +12,7 @@
             <h2 class="mr20">Наиболее активные</h2>
             <a href="/library"><ButtonAccent value="К библиотеке"/></a>
         </div>
-        <div class="book-row">
-            <BookLink link="/book-page"/><BookLink/><BookLink/><BookLink/><BookLink/><BookLink/>
-        </div>
+        <MainOriginTable/>
     </section>    
   </DefaultLayout>
 </template>
@@ -23,19 +21,18 @@
 import DefaultLayout from '@/layouts/DefaultLayout'
 import ButtonLargeAccent from '@/components/ButtonLargeAccent'
 import ButtonAccent from '@/components/ButtonAccent'
-import BookLink from '@/components/BookLink'
+import MainOriginTable from '@/components/MainOriginTable'
 
 export default {
     name: 'Home',
-    created () {
-      document.title = "Langchanger";
+    created() {
+        document.title = "Langchanger"
     },
-
     components: {
         DefaultLayout,
         ButtonLargeAccent,
         ButtonAccent,
-        BookLink
+        MainOriginTable
     }
 }
 </script>
@@ -63,10 +60,5 @@ p {
 .start-most-active > div:nth-child(2) {
     display: flex;
     margin-bottom: 115px;
-}
-
-.book-row {
-    display: flex;
-    justify-content: space-between;
 }
 </style>

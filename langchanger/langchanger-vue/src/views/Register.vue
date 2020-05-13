@@ -6,7 +6,7 @@
       <div class="inline-form">
         <div class="mr20">
           <h4 class="mb10">Почта</h4>
-          <input type="email" id="mail" placeholder="Используется для подтверждения аккаунта" class="mb10">
+          <input type="email" id="email" placeholder="Используется для подтверждения аккаунта" class="mb10">
         </div>
         <div>
           <h4 class="mb10">Имя пользователя</h4>
@@ -40,7 +40,7 @@
         </div>
       </div>
       <p class="terms mb20">Нажатием Регистрация вы подтверждаете что прочитали и согласились с <a href="">Политикой использования</a></p>
-      <ButtonBlack value="Регистрация"/>
+      <ButtonBlack value="Регистрация" @click="register()"/>
     </div>
   </DefaultLayout>
 </template>
@@ -49,9 +49,13 @@
 import DefaultLayout from '@/layouts/DefaultLayout'
 import ButtonBlack from '@/components/ButtonBlack'
 import PlaceholderEqual from '@/components/PlaceholderEqual'
+import axios from 'axios'
 
 export default {
     name: 'Register',
+    methods: {
+      
+    },
     created () {
       document.title = "Регистрация - Langchanger";
     },

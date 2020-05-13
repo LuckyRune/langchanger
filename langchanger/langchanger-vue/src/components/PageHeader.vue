@@ -12,6 +12,10 @@ export default {
 </script>
 
 <style scoped>
+header {
+  margin-bottom: 20px;
+}
+
 p {
   color: var(--text-desc);
   font-size: 14px;

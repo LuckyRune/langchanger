@@ -30,14 +30,14 @@
                 <th>Изменения</th>
             </tr>
             <tr>
-                <td><a href="/book-page">Тайные приключения даунов</a></td>
+                <td><a href="/book-page">Война и мир</a></td>
                 <td>382</td>
                 <td><a href="/translation">Английский</a></td>
                 <td>20.12.20</td>
                 <td>356</td>
             </tr>
             <tr>
-                <td><a href="/book-page">Кул стори Олега</a></td>
+                <td><a href="/book-page">Мёртвые души</a></td>
                 <td>382</td>
                 <td><a href="/translation">Английский</a></td>
                 <td>20.12.20</td>

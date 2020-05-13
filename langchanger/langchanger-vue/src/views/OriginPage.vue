@@ -1,19 +1,19 @@
 <template>
   <DefaultLayout>
-    <h3 class="mb20">Название</h3>
+    <h3 class="mb20">{{ origin.title }}</h3>
     <div class="book-info mb20">
-        <Book width="220" height="290" class="mr20"/>
+        <Book width="220" height="290" class="mr20" :poster="origin.poster.image"/>
         <div>
             <h5>Информация</h5>
-            <p><span class="book-prop">Формат: </span><a href="#">Книга</a></p>
-            <p><span class="book-prop">Жанры: </span><a href="#" class="genre">Комедия</a><a href="#" class="genre">Драма</a></p>
-            <p><span class="book-prop">Возрастной рейтинг: </span><a href="#">12+</a></p>
-            <p><span class="book-prop">Автор: </span>Йцукен Некуцй</p>
+            <p><span class="book-prop">Формат: </span><a href="#">{{ origin.format_type.name }}</a></p>
+            <p><span class="book-prop">Жанры: </span><a href="#" class="genre">{{ origin.genre[0].name }}</a>
+            <p><span class="book-prop">Возрастной рейтинг: </span><a href="#">{{ origin.age_limit }}+</a></p>
+            <p><span class="book-prop">Автор: </span>{{ origin.author }}</p>
         </div>
     </div>
     <div class="book-desc mb20">
         <h5>Описание</h5>
-        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Sed, beatae praesentium? Reiciendis doloribus, eum inventore laboriosam ab consequuntur vitae quae!</p>
+        <p>{{ origin.description }}</p>
     </div>
     <div class="mb20">
         <h5>Читать</h5>
@@ -37,11 +37,25 @@ import DefaultLayout from '@/layouts/DefaultLayout'
 import Book from '@/components/Book'
 import SelectList from '@/components/SelectList'
 import ButtonBlack from '@/components/ButtonBlack'
+import axios from 'axios'
 
 export default {
-    name: 'BookPage',
+    name: 'OriginPage',
+    data() {
+      return {
+        id: this.$route.params.id,
+        origin: []
+      }
+    },
     created () {
-      document.title = "Книга1 - Langchanger";
+      axios('http://127.0.0.1:8000/project-api/library/origin/?origin=' + this.id, {
+        method: 'GET'
+      })
+      .then((response) => {
+        this.origin = response.data.data.origin
+        console.log(response.data.data.origin)
+        document.title = response.data.data.origin.title + " - Langchanger"
+      })
     },
 
     components: {

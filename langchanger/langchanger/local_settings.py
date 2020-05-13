@@ -1,8 +1,9 @@
 import os
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(_file_)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '192.168.0.1']
+BOT_TOKEN = '1230832566:AAGmZMA28NdvhHrnnCATbAnkitTUZFygCXY'
 
 DEBUG = True
 

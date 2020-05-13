@@ -9,14 +9,10 @@ export default new Router({
         {
             path: '/',
             component: () => import('./views/Home.vue'),
-            title: 'Langchanger'
         },
         {
             path: '/library',
             component: () => import('./views/Library.vue'),
-            meta: { 
-                title: 'Langchanger: Библиотека' 
-            }
         },
         {
             path: '/users',
@@ -35,8 +31,8 @@ export default new Router({
             component: () => import('./views/Register.vue')
         },
         {
-            path: '/book-page',
-            component: () => import('./views/BookPage.vue')
+            path: '/book/:id',
+            component: () => import('./views/OriginPage.vue')
         },
         {
             path: '/reading',

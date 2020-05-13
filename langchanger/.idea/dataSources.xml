@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="langchanger_db" uuid="70e92ec7-fe7d-42c1-bf9f-e1dd73f03b30">
+    <data-source source="LOCAL" name="Django default" uuid="b6f18cf0-a510-41de-8a55-7ab010dae89c">
+      <driver-ref>greenplum</driver-ref>
+      <synchronize>true</synchronize>
+      <imported>true</imported>
+      <remarks>$PROJECT_DIR$/langchanger/settings.py</remarks>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://127.0.0.1:8000/langchanger_db</jdbc-url>
+    </data-source>
+    <data-source source="LOCAL" name="langchanger_db@localhost" uuid="30036ce0-7e65-4c9f-a25d-b8c827e1d858">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/postgres</jdbc-url>
+      <jdbc-url>jdbc:postgresql://localhost:5432/langchanger_db</jdbc-url>
     </data-source>
   </component>
 </project>
