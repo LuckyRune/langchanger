@@ -53,10 +53,11 @@ class AllUserSerializer(serializers.ModelSerializer):
 
 class RateUserSerializer(serializers.ModelSerializer):
     rate = serializers.IntegerField(read_only=True)
+    user_profile = IconUserProfileSerializer()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'rate')
+        fields = ('id', 'username', 'rate', 'user_profile')
 
 
 class PostUserProfileSerializer(serializers.ModelSerializer):
