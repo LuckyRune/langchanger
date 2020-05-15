@@ -29,6 +29,10 @@ def paginator(request, queryset):
     return queryset_part
 
 
+class OriginTypeListView():
+    pass
+
+
 class MainPageView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -94,8 +98,10 @@ class OneOriginView(APIView):
         pk = int(request.GET.get('origin', -1))
 
         origin = get_object_or_404(Origin, pk=pk)
-        translation_lang = Translation.objects.filter(origin=pk).only('language').distinct()
-        languages = Language.objects.filter(pk__in=translation_lang)
+
+        language_set = set(Translation.objects.filter(origin=pk).values_list('language'))
+        language_set = [x[0] for x in language_set]
+        languages = Language.objects.filter(pk__in=language_set)
 
         serializer_language = LanguageSerializer(languages, many=True)
         serializer_origin = OneOriginSerializer(origin)
@@ -164,7 +170,7 @@ class ReadTranslationView(APIView):
         translation = translations.first()
         last_version = Version.objects.filter(translation=pk).latest('creation_date')
 
-        serializer_translation = AllTranslationSerializer(translation)
+        serializer_translation = ReadTranslationSerializer(translation)
         serializer_version = ReadVersionSerializer(last_version)
 
         content = {'data': {
@@ -179,22 +185,6 @@ class MakeTranslationView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     renderer_classes = [JSONRenderer]
-
-    def get(self, request):
-        pk = int(request.GET.get('translation', -1))
-
-        translation = get_object_or_404(Translation, pk=pk)
-        last_version = Version.objects.filter(translation=pk).latest('creation_date')
-
-        serializer_translation = AllTranslationSerializer(translation)
-        serializer_version = ReadVersionSerializer(last_version)
-
-        content = {'data': {
-            'translation': serializer_translation.data,
-            'last_version': serializer_version.data,
-        }}
-
-        return Response(content)
 
     def post(self, request):
         data = request.data.copy()
