@@ -92,6 +92,17 @@ class AllTranslationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Translation
+        fields = ('id', 'creation_date', 'rate', 'origin', 'language')
+
+
+class ReadTranslationSerializer(serializers.ModelSerializer):
+    rate = serializers.IntegerField(read_only=True)
+    author = serializers.SerializerMethodField('get_author_data')
+
+    language = LanguageSerializer()
+
+    class Meta:
+        model = Translation
         fields = ('id', 'creation_date', 'author', 'rate', 'origin', 'language')
 
     def get_author_data(self, obj):

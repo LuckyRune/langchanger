@@ -190,7 +190,7 @@ class SettingUserView(APIView):
                 serializer_profile_icon = UserIconSerializer(profile_icon, data=request.data)
 
                 if serializer_profile_icon.is_valid():
-                    tg_hash = send_image(document=request.data['image'].open(), chat='UserIcon')
+                    tg_hash = send_image(image=request.data['image'].open(), chat='UserIcon')
                     serializer_profile_icon.save(tg_hash=tg_hash)
                 else:
                     return Response({
@@ -203,6 +203,17 @@ class SettingUserView(APIView):
             'main_errors': serializer_user.errors,
             'profile_errors': serializer_profile.errors
         }, status=400)
+
+    def delete(self, request):
+        user = User.objects.get(id=request.user.id)
+        profile = UserProfile.objects.get(user=user.id)
+
+        if profile.profile_icon:
+            profile_icon = UserIcon.objects.get(id=profile.profile_icon.id)
+            profile_icon.delete()
+
+        user.delete()
+        return Response(status=200)
 
 
 class RegisterUserView(APIView):
@@ -217,21 +228,22 @@ class RegisterUserView(APIView):
         check_set = (serializer_user.is_valid(), serializer_profile.is_valid())
 
         if False not in check_set:
-            user = serializer_user.save()
 
             if request.data.get('image', False):
                 serializer_profile_icon = UserIconSerializer(data=request.data)
 
                 if serializer_profile_icon.is_valid():
-                    tg_hash = send_image(document=request.data['image'].open(), chat='UserIcon')
+                    tg_hash = send_image(image=request.data['image'].open(), chat='UserIcon')
                     icon = serializer_profile_icon.save(tg_hash=tg_hash)
                 else:
                     return Response({
                         'image_errors': serializer_profile_icon.errors
                     }, status=400)
 
+                user = serializer_user.save()
                 serializer_profile.save(user=user, profile_icon=icon)
             else:
+                user = serializer_user.save()
                 serializer_profile.save(user=user)
 
             return Response(status=200)
