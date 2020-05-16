@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import permissions
 from rest_framework.renderers import JSONRenderer
+from rest_framework.generics import ListAPIView
 
 from .models import *
 from .serializers import *
@@ -29,8 +30,22 @@ def paginator(request, queryset):
     return queryset_part
 
 
-class OriginTypeListView():
-    pass
+class FormatTypeListView(ListAPIView):
+    queryset = FormatType.objects.all()
+    serializer_class = FormatTypeSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class GenreListView(ListAPIView):
+    queryset = Genre.objects.all()
+    serializer_class = GenreSerializer
+    permission_classes = [permissions.AllowAny]
+
+
+class LanguageListView(ListAPIView):
+    queryset = Language.objects.all()
+    serializer_class = LanguageSerializer
+    permission_classes = [permissions.AllowAny]
 
 
 class MainPageView(APIView):

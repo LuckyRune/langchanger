@@ -8,13 +8,13 @@ from .bot import get_file, send_file, send_image
 
 def validate_file(value):
     max_file_size = 3 * 1024 ** 2
-    acceptable_format = 'pdf'
+    acceptable_format = 'txt'
 
     if value['file'].size > max_file_size:
         raise serializers.ValidationError('File is too big (max size - 3 Mb)')
 
     if value['file'].name[-3:] != acceptable_format:
-        raise serializers.ValidationError('The unacceptable format (acceptable format \'pdf\')')
+        raise serializers.ValidationError(f'The unacceptable format (acceptable format \'{acceptable_format}\')')
 
     return value
 

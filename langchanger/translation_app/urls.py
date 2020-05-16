@@ -4,6 +4,10 @@ from . import views
 
 
 urlpatterns = [
+    url(r'^format-type/list/$', views.FormatTypeListView.as_view()),
+    url(r'^genre/list/$', views.GenreListView.as_view()),
+    url(r'^language/list/$', views.LanguageListView.as_view()),
+
     url(r'^main/$', views.MainPageView.as_view(), name='main-page'),
     url(r'^origin/all/$', views.AllOriginView.as_view(), name='all-origin'),
     url(r'^origin/$', views.OneOriginView.as_view()),
