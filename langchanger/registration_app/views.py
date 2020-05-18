@@ -184,18 +184,21 @@ class SettingUserView(APIView):
 
         if False not in check_set:
             serializer_user.save()
-            serializer_profile.save()
 
             if request.data.get('image', False):
                 serializer_profile_icon = UserIconSerializer(profile_icon, data=request.data)
 
                 if serializer_profile_icon.is_valid():
                     tg_hash = send_image(image=request.data['image'].open(), chat='UserIcon')
-                    serializer_profile_icon.save(tg_hash=tg_hash)
+                    icon = serializer_profile_icon.save(tg_hash=tg_hash)
+
+                    serializer_profile.save(profile_icon=icon)
                 else:
                     return Response({
                         'image_errors': serializer_profile_icon.errors
                     }, status=400)
+            else:
+                serializer_profile.save()
 
             return Response(status=200)
 
