@@ -85,7 +85,6 @@ class TranslationByLanguageSerializer(serializers.ModelSerializer):
 
 class AllTranslationSerializer(serializers.ModelSerializer):
     rate = serializers.IntegerField(read_only=True)
-    author = serializers.SerializerMethodField('get_author_data')
 
     origin = AllOriginSerializer()
     language = LanguageSerializer()
