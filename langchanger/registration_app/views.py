@@ -64,6 +64,21 @@ class AllUserView(APIView):
         return Response(content)
 
 
+class MainUserInfoView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    renderer_classes = [JSONRenderer]
+
+    def get(self, request):
+        pk = request.user.id
+
+        user = User.objects.get(pk=pk)
+
+        user_serializer = RateUserSerializer(user)
+
+        return Response(user_serializer.data, status=200)
+
+
 class ProfileUserView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -88,7 +103,7 @@ class ProfileUserView(APIView):
             'translations': serializer_translations.data,
         }}
 
-        return Response(content)
+        return Response(content, status=200)
 
 
 class AchievementView(APIView):
