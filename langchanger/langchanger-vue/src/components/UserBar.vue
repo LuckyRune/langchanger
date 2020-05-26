@@ -1,19 +1,18 @@
 <template>
-  <a href="/user">
-    <PlaceholderEqual size="40" class="mr10" value="usericon"/>
+  <a href="#">
     <span class="mr5">Имя пользователя</span>
     <span>(<span>345)</span></span>
   </a>
 </template>
 
 <script>
-import PlaceholderEqual from '@/components/PlaceholderEqual'
+import UserIcon from '@/components/UserIcon'
 
 export default {
-    name: 'UserBar',
+    name: 'UserIcon',
 
     components: {
-        PlaceholderEqual
+        UserIcon
     }
 }
 </script>

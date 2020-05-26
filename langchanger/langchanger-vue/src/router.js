@@ -27,6 +27,10 @@ export default new Router({
             component: () => import('./views/Login.vue')
         },
         {
+            path: '/logout',
+            component: () => import('./views/Logout.vue')
+        },
+        {
             path: '/register',
             component: () => import('./views/Register.vue')
         },
@@ -35,15 +39,23 @@ export default new Router({
             component: () => import('./views/OriginPage.vue')
         },
         {
-            path: '/reading',
+            path: '/reading/:id',
             component: () => import('./views/BookReading.vue')
         },
         {
-            path: '/translation',
+            path: '/translation/:id',
             component: () => import('./views/BookTranslation.vue')
         },
         {
-            path: '/user',
+            path: '/editing/:id',
+            component: () => import('./views/AddVersion.vue')
+        },
+        {
+            path: '/translating/:id',
+            component: () => import('./views/BookTranslating.vue')
+        },
+        {
+            path: '/user/:id',
             component: () => import('./views/User.vue')
         },
         {
@@ -54,5 +66,13 @@ export default new Router({
             path: '/user-onhold',
             component: () => import('./views/UserOnHold.vue')
         },
+        {
+            path: '/changes/:id',
+            component: () => import('./views/Changes.vue')
+        },
+        {
+            path: '/version/:id',
+            component: () => import('./views/VersionRead.vue')
+        }
     ]
 })

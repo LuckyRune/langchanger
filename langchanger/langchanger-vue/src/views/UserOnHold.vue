@@ -1,14 +1,13 @@
 <template>
-  <DefaultLayout>
+  <div>
     <PageHeader>
         <template v-slot:header>Отложенное</template>
         <template v-slot:header-desc>На данной странице отображены отложенные книги пользователя.</template>
     </PageHeader>
-  </DefaultLayout>
+  </div>
 </template>
 
 <script>
-import DefaultLayout from '@/layouts/DefaultLayout'
 import PageHeader from '@/components/PageHeader'
 
 export default {
@@ -18,7 +17,6 @@ export default {
     },
 
     components: {
-        DefaultLayout,
         PageHeader
     }
 }

@@ -1,16 +1,20 @@
 <template>
-  <select :id="id">
-      <option v-for="option in options" :key="option.value" :value="option.value">{{ option.text }}</option>
+  <select :id="id" v-model="select">
+      <option v-for="option in options" :key="option.id" :value="option.id">{{ option.name }}</option>
   </select>
 </template>
 
 <script>
 export default {
     name: 'SelectList',
-
+    data() {
+      return {
+        select: ''
+      }
+    },
     props: {
         id: String,
-        options: Object
+        options: Array
     }
 }
 </script>

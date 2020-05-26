@@ -1,11 +1,11 @@
 <template>
-  <DefaultLayout>
+  <div>
     <section>
         <h1>Langchanger</h1>
         <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Voluptatum, officiis.</p>
         
-        <a href="/login"><ButtonLargeAccent class="mr10" value="Войти"/></a>
-        <a href="/register"><ButtonLargeAccent value="Регистрация"/></a>
+        <a href="/login" v-if="!loggedIn"><ButtonLargeAccent class="mr10" value="Войти"/></a>
+        <a href="/register" v-if="!loggedIn"><ButtonLargeAccent value="Регистрация"/></a>
     </section>
     <section class="start-most-active">
         <div>
@@ -14,22 +14,27 @@
         </div>
         <MainOriginTable/>
     </section>    
-  </DefaultLayout>
+  </div>
 </template>
 
 <script>
-import DefaultLayout from '@/layouts/DefaultLayout'
 import ButtonLargeAccent from '@/components/ButtonLargeAccent'
 import ButtonAccent from '@/components/ButtonAccent'
 import MainOriginTable from '@/components/MainOriginTable'
+import axios from 'axios'
+import { mapGetters } from 'vuex'
 
 export default {
     name: 'Home',
     created() {
         document.title = "Langchanger"
     },
+    computed: {
+        ...mapGetters([
+            'loggedIn'
+        ])
+    },
     components: {
-        DefaultLayout,
         ButtonLargeAccent,
         ButtonAccent,
         MainOriginTable

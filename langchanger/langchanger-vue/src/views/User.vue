@@ -1,47 +1,44 @@
 <template>
-  <DefaultLayout>
-    <h3 class="mb20">Имя пользователя</h3>
+  <div>
+    <h3 class="mb20">{{ username }}</h3>
     <div class="user-info mb20">
-        <PlaceholderEqual class="mr20" value="usericon"/>
+        <UserIcon poster="/usericon.svg" class="mr20"/>
         <div>
-            <p class="mb10"><span class="accent">Рейтинг: </span><span id="user-rating">356</span></p>
-            <button @click="showModal = true" class="mb10"><h5 class="link"><span class="mr5">Достижения</span><span>(<span id="user-achievements">7</span>)</span></h5></button>
-            <div class="user-achievements mb10">
+            <p class="mb10"><span class="accent">Рейтинг: </span><span id="user-rating">0</span></p>
+            <button @click="showModal = true" class="mb10"><h5 class="link"><span class="mr5">Достижения</span></h5></button>
+            <p class="mb10">Достижений пока нет.</p>
+            <!-- <div class="user-achievements mb10">
                 <PlaceholderEqual size="50" value="achievement"/>
                 <PlaceholderEqual size="50" value="achievement"/>
                 <PlaceholderEqual size="50" value="achievement"/>
                 <PlaceholderEqual size="50" value="achievement"/>
-            </div>
-            <a href="/user-onhold"><h5 class="link"><span class="mr5">Отложенное</span><span>(<span id="user-on-hold">4</span>)</span></h5></a>
+            </div> -->
+            <a href="/user-onhold"><h5 class="link"><span class="mr5">Отложенное</span></h5></a>
+            <p>Отложенного пока нет.</p>
         </div>
     </div>
     <div class="user-desc mb40">
         <h5 class="mb5">Описание</h5>
-        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Architecto, vel! Dignissimos, perferendis. Quo sit fugit a quasi. Fugiat, minima nihil.</p>
+        <p v-if="description != null ">{{ description }}</p>
+        <p v-else>Без описания.</p>
     </div>
     <div>
         <h5 class="mb10">Переводы</h5>
-        <table>
+        <p v-if="!translations.length > 0">Пока переводов нет.</p>
+        <table v-if="translations.length > 0">
             <tr>
                 <th>Название</th>
-                <th>Рейтинг</th>
                 <th>Язык перевода</th>
                 <th>Последнее изменение</th>
-                <th>Изменения</th>
+                <th>Версии</th>
+                <th></th>
             </tr>
-            <tr>
-                <td><a href="/book-page">Война и мир</a></td>
-                <td>382</td>
-                <td><a href="/translation">Английский</a></td>
-                <td>20.12.20</td>
-                <td>356</td>
-            </tr>
-            <tr>
-                <td><a href="/book-page">Мёртвые души</a></td>
-                <td>382</td>
-                <td><a href="/translation">Английский</a></td>
-                <td>20.12.20</td>
-                <td>356</td>
+            <tr v-for="translation in translations" :key="translation.id">
+                <td><a :href="/book/ + translation.origin.id">{{ translation.origin.title }}</a></td>
+                <td><a :href="/translation/ + translation.id">{{ translation.language.name }}</a></td>
+                <td>{{ translation.creation_date.substr(0, 10) }}</td>
+                <td><a :href="/changes/ + translation.id">Посмотреть</a></td>
+                <td><button v-if="id == USERID" class="btnDelete" id="delete-translation" :value="translation.id" @click="showDelModal = true">X</button></td>
             </tr>
         </table>
     </div>
@@ -54,36 +51,84 @@
             <div>
                 <h3>Название</h3>
                 <div>
-                    <PlaceholderEqual size="150" value="achievement" class="mr5"/>
+                    <!-- <PlaceholderEqual size="150" value="achievement" class="mr5"/> -->
                     <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Praesentium dolorem laudantium et cum? Obcaecati perferendis rerum culpa incidunt unde magnam.</p>
                 </div>
             </div>
         </section>
     </Modal>
-  </DefaultLayout>
+    <Modal @close="showDelModal = false" :show="showDelModal">
+      <header class="mb20">
+            <h3 class="mb5">Удаление</h3>
+      </header>
+      <section>
+        <p class="subm">Вы действительно хотите удалить перевод?</p>
+        <div class="choose">
+          <button class="yes" @click="deleteTranslation">Да</button><button class="no">Нет</button>
+        </div>
+      </section>
+    </Modal>
+  </div>
 </template>
 
 <script>
-import DefaultLayout from '@/layouts/DefaultLayout'
-import PlaceholderEqual from '@/components/PlaceholderEqual'
+import UserIcon from '@/components/UserIcon'
 import Modal from '@/layouts/DefaultModal'
+import axios from 'axios'
+import { mapGetters } from 'vuex'
 
 export default {
     name: 'User',
-    created () {
-      document.title = "Имя пользователя - Langchanger";
-    },
-
-    components: {
-        DefaultLayout,
-        PlaceholderEqual,
-        Modal
-    },
-
     data() {
-        return {
-            showModal: false
-        }
+      return {
+        id: this.$route.params.id,
+        username: '',
+        profile_icon: '',
+        description: '',
+        rate: '',
+        translations: [],
+        showModal: false,
+        showDelModal: false
+      }
+    },
+    created () {
+      axios('http://127.0.0.1:8000/project-api/user/profile/?user=' + this.id, {
+        method: 'GET'
+      })
+      .then((response) => {
+        let user_data = response.data.data.user
+        console.log(response.data.data.user)
+        this.username = user_data.username
+        // this.profile_icon = user_data.user_profile.profile_icon.image
+        this.description = user_data.user_profile.description
+        this.rate = user_data.rate
+        this.translations = response.data.data.translations
+        document.title = response.data.data.user.username + " - Langchanger"
+      })
+    },
+    methods: {
+      getTranslations() {
+        axios('http://127.0.0.1:8000/project-api/user/profile/?user=' + this.id)
+        .then((response) => {
+        this.translations = response.data.data.translations
+      })
+      },
+      deleteTranslation() {
+        this.showDelModal = false
+        this.$store.dispatch('DELETE_TRANSLATION', {
+          translation: document.getElementById('delete-translation').value
+        })
+        setTimeout(this.getTranslations, 500)
+      }
+    },
+    computed: {
+        ...mapGetters([
+            'USERID'
+        ])
+    },
+    components: {
+        UserIcon,
+        Modal
     }
 }
 </script>
@@ -169,6 +214,27 @@ th, td {
   font-size: 14px;
 }
 
+.subm {
+  font-size: 15px;
+  color: var(--large-accent)!important;
+  margin-bottom: 10px;
+}
+
+.yes {
+  background-color: var(--large-accent);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.no {
+  background-color: var(--secondary);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+}
+
 .modal section h3 {
   margin-bottom: 5px;
 }
@@ -184,8 +250,19 @@ th, td {
 }
 
 .modal section {
-  width: 1240px;
-  height: 550px;
+  width: 620px;
+  height: 70px;
   overflow: auto;
+}
+
+.btnDelete {
+  background-color: var(--large-accent);
+  padding: 6px 8px;
+  border-radius: 3px;
+  color: white
+}
+
+.btnDelete:hover {
+  box-shadow: 0 0 2px black;
 }
 </style>

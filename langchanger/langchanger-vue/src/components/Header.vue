@@ -1,13 +1,14 @@
 <template>
     <header>
-        <div></div>
+        <div class="username-div"><p v-if="loggedIn" id="username-p">Вы вошли как: <a :href="/user/ + USERID">{{CLIENT_USERNAME}}</a></p></div>
         <nav>
             <Finder/>
             <a href="/"><img src="@/assets/svg/logo.svg"></a>
             <MainMenu/>
         </nav>
         <div>
-            <router-link to="/login"><ButtonWhite class="sign-in" value="Войти"/></router-link>
+            <router-link to="/login" v-if="!loggedIn"><ButtonWhite class="sign-in" value="Войти"/></router-link>
+            <router-link to="/logout" v-if="loggedIn"><ButtonWhite class="sign-in" value="Выйти"/></router-link>
             <img src="@/assets/svg/sign-in.svg">
         </div>
     </header>
@@ -17,10 +18,28 @@
 import Finder from '@/components/Finder'
 import MainMenu from '@/components/MainMenu'
 import ButtonWhite from '@/components/ButtonWhite'
+import axios from 'axios'
+import {mapActions, mapGetters} from 'vuex'
 
 export default {
     name: 'Header',
-
+    created() {
+        if(this.loggedIn) {
+            this.GET_USER_SETTINGS()
+        }
+    },
+    methods: {
+        ...mapActions([
+            'GET_USER_SETTINGS'
+        ])
+    },
+    computed: {
+        ...mapGetters([
+            'CLIENT_USERNAME',
+            'USERID',
+            'loggedIn'
+        ])
+    },
     components: {
         Finder,
         MainMenu,
@@ -64,6 +83,23 @@ div > img {
 
 .sign-in {
     display: none;
+}
+
+p {
+  color: white
+}
+
+.username-div {
+  justify-self: start;
+  margin-left: 20px;
+}
+
+a {
+  color: var(--secondary)
+}
+
+a:hover {
+  color: white
 }
 
 @media screen and (min-width: 1360px) {

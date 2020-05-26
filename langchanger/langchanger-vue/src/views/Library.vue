@@ -1,5 +1,5 @@
 <template>
-  <DefaultLayout>
+  <div>
     <PageHeader>
       <template v-slot:header>Библиотека</template>
       <template v-slot:header-desc>На данной странице отображены книги, отсортированные по актуальности.</template>
@@ -87,11 +87,10 @@
         <OriginTable/>
       </section>
     </section>
-  </DefaultLayout>
+  </div>
 </template>
 
 <script>
-import DefaultLayout from '@/layouts/DefaultLayout'
 import Pagination from '@/components/Pagination'
 import PageHeader from '@/components/PageHeader'
 import OriginTable from '@/components/OriginTable'
@@ -101,9 +100,7 @@ export default {
     created () {
       document.title = "Библиотека - Langchanger";
     },
-
     components: {
-        DefaultLayout,
         Pagination,
         PageHeader,
         OriginTable

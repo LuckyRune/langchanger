@@ -1,97 +1,82 @@
 <template>
-  <DefaultLayout>
+  <div>
     <div class="edit-bar mb10">
       <div class="edit-props">
           <div class="edit-prop">
               <span>Версия от:</span>
-              <span>20.03.20</span>
+              <span>{{ last_change }}</span>
           </div>
           <div class="edit-prop">
-              <span>Изменения:</span>
-              <span>234</span>
+              <span>Язык:</span>
+              <span>{{ language }}</span>
           </div>
-          <div class="edit-prop">
+          <div id="edit-translation">
+            <router-link :to="/editing/ + this.id"><button class="btnBlack">Изменить</button></router-link>
+          </div>
+          <!-- <div class="edit-prop">
               <span>Рейтинг:</span>
               <span><span>234</span></span>
           </div>
           <div class="edit-rating">
             <span id="edit-rating-dislike" class="mr5">-</span>
             <span id="edit-rating-like">+</span>
-          </div>
+          </div> -->
       </div>
-      <UserBar/>
+      <a class="authorBar" :href="/user/ + authorId">
+        <span class="mr5">Автор:</span>
+        <span class="mr10">{{ author }}</span>
+        <!-- <span>(<span>345</span>)</span> -->
+      </a>
     </div>
 
-    <textarea id="edit-area" readonly>
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem, recusandae consectetur fugit numquam laudantium, 
-        hic quaerat dolorem impedit perferendis nam reiciendis? Dicta numquam laboriosam tempora repellendus fuga? Necessitatibus 
-        deserunt delectus beatae labore quod maxime ut? Eos natus numquam quas expedita accusamus mollitia dolorum illo! Alias 
-        adipisci voluptatem nesciunt numquam enim.
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem, recusandae consectetur fugit numquam laudantium, 
-        hic quaerat dolorem impedit perferendis nam reiciendis? Dicta numquam laboriosam tempora repellendus fuga? Necessitatibus 
-        deserunt delectus beatae labore quod maxime ut? Eos natus numquam quas expedita accusamus mollitia dolorum illo! Alias 
-        adipisci voluptatem nesciunt numquam enim.
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem, recusandae consectetur fugit numquam laudantium, 
-        hic quaerat dolorem impedit perferendis nam reiciendis? Dicta numquam laboriosam tempora repellendus fuga? Necessitatibus 
-        deserunt delectus beatae labore quod maxime ut? Eos natus numquam quas expedita accusamus mollitia dolorum illo! Alias 
-        adipisci voluptatem nesciunt numquam enim.
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem, recusandae consectetur fugit numquam laudantium, 
-        hic quaerat dolorem impedit perferendis nam reiciendis? Dicta numquam laboriosam tempora repellendus fuga? Necessitatibus 
-        deserunt delectus beatae labore quod maxime ut? Eos natus numquam quas expedita accusamus mollitia dolorum illo! Alias 
-        adipisci voluptatem nesciunt numquam enim.
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem, recusandae consectetur fugit numquam laudantium, 
-        hic quaerat dolorem impedit perferendis nam reiciendis? Dicta numquam laboriosam tempora repellendus fuga? Necessitatibus 
-        deserunt delectus beatae labore quod maxime ut? Eos natus numquam quas expedita accusamus mollitia dolorum illo! Alias 
-        adipisci voluptatem nesciunt numquam enim.
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem, recusandae consectetur fugit numquam laudantium, 
-        hic quaerat dolorem impedit perferendis nam reiciendis? Dicta numquam laboriosam tempora repellendus fuga? Necessitatibus 
-        deserunt delectus beatae labore quod maxime ut? Eos natus numquam quas expedita accusamus mollitia dolorum illo! Alias 
-        adipisci voluptatem nesciunt numquam enim.
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem, recusandae consectetur fugit numquam laudantium, 
-        hic quaerat dolorem impedit perferendis nam reiciendis? Dicta numquam laboriosam tempora repellendus fuga? Necessitatibus 
-        deserunt delectus beatae labore quod maxime ut? Eos natus numquam quas expedita accusamus mollitia dolorum illo! Alias 
-        adipisci voluptatem nesciunt numquam enim.
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem, recusandae consectetur fugit numquam laudantium, 
-        hic quaerat dolorem impedit perferendis nam reiciendis? Dicta numquam laboriosam tempora repellendus fuga? Necessitatibus 
-        deserunt delectus beatae labore quod maxime ut? Eos natus numquam quas expedita accusamus mollitia dolorum illo! Alias 
-        adipisci voluptatem nesciunt numquam enim.
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem, recusandae consectetur fugit numquam laudantium, 
-        hic quaerat dolorem impedit perferendis nam reiciendis? Dicta numquam laboriosam tempora repellendus fuga? Necessitatibus 
-        deserunt delectus beatae labore quod maxime ut? Eos natus numquam quas expedita accusamus mollitia dolorum illo! Alias 
-        adipisci voluptatem nesciunt numquam enim.
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem, recusandae consectetur fugit numquam laudantium, 
-        hic quaerat dolorem impedit perferendis nam reiciendis? Dicta numquam laboriosam tempora repellendus fuga? Necessitatibus 
-        deserunt delectus beatae labore quod maxime ut? Eos natus numquam quas expedita accusamus mollitia dolorum illo! Alias 
-        adipisci voluptatem nesciunt numquam enim.
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem, recusandae consectetur fugit numquam laudantium, 
-        hic quaerat dolorem impedit perferendis nam reiciendis? Dicta numquam laboriosam tempora repellendus fuga? Necessitatibus 
-        deserunt delectus beatae labore quod maxime ut? Eos natus numquam quas expedita accusamus mollitia dolorum illo! Alias 
-        adipisci voluptatem nesciunt numquam enim.
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem, recusandae consectetur fugit numquam laudantium, 
-        hic quaerat dolorem impedit perferendis nam reiciendis? Dicta numquam laboriosam tempora repellendus fuga? Necessitatibus 
-        deserunt delectus beatae labore quod maxime ut? Eos natus numquam quas expedita accusamus mollitia dolorum illo! Alias 
-        adipisci voluptatem nesciunt numquam enim.
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Exercitationem, recusandae consectetur fugit numquam laudantium, 
-        hic quaerat dolorem impedit perferendis nam reiciendis? Dicta numquam laboriosam tempora repellendus fuga? Necessitatibus 
-        deserunt delectus beatae labore quod maxime ut? Eos natus numquam quas expedita accusamus mollitia dolorum illo! Alias 
-        adipisci voluptatem nesciunt numquam enim.
+    <textarea id="translation-read-area" readonly>
+        
     </textarea>
-  </DefaultLayout>
+  </div>
 </template>
 
 <script>
-import DefaultLayout from '@/layouts/DefaultLayout'
-import UserBar from '@/components/UserBar'
+import axios from 'axios'
+import { cors } from '../vars.js'
+import { mapGetters, mapMutations } from 'vuex'
 
 export default {
     name: 'BookTranslation',
-    created () {
-      document.title = "Книга1 - Langchanger";
+    data() {
+      return {
+        id: this.$route.params.id,
+        author: '',
+        authorId: '',
+        language: '',
+        last_change: ''
+      }
     },
+    created () {
+      axios('http://127.0.0.1:8000/project-api/library/translation/read/?translation=' + this.id)
+      .then((response) => {
 
-    components: {
-        DefaultLayout,
-        UserBar
+        var file = response.data.data.last_version.version_link.file
+        axios(cors + file)
+          .then((res) => {
+          document.getElementById('translation-read-area').value = res.data
+        })
+
+        this.authorId = response.data.data.translation.author.id
+        this.author = response.data.data.translation.author.username
+        this.language = response.data.data.translation.language.name
+        this.last_change = response.data.data.last_version.creation_date.substr(0, 10)
+        document.title = "Перевод " + response.data.data.translation.author.username + " - Langchanger"
+      })
+
+      setTimeout(this.editShow, 500)
+    },
+    methods: {
+      editShow() {
+      if (this.author == this.$store.getters.CLIENT_USERNAME) {
+        console.log(1)
+        document.getElementById('edit-translation').style.display = "block"
+      }
+      }
     }
 }
 </script>
@@ -155,5 +140,28 @@ textarea {
   height: 75vh;
   min-height: 90px;
   padding: 10px;
+}
+
+.authorBar {
+  display: flex;
+  align-items: center;
+  color: var(--text-link);
+  font-size: 20px;
+}
+
+.authorBar span:nth-child(1) {
+  color: black;
+}
+
+.authorBar:hover > div {
+  box-shadow: 0 0 2px black;
+}
+
+.authorBar:active > div {
+  box-shadow: 0 0 2px black inset;
+}
+
+#edit-translation {
+  display: none;
 }
 </style>

@@ -1,7 +1,6 @@
 <template>
-  <DefaultLayout>
+  <div>
     <div style="position: relative">
-        <BackTo link="/user">Назад к профилю</BackTo>
         <h5>Настройки профиля</h5>
         <div class="form-style mb20">
             <div class="change-inputs mr20">
@@ -11,7 +10,7 @@
                 <input type="email" id="user-email">
             </div>
             <div class="usericon-upload mt5">
-            <PlaceholderEqual size="128" value="usericon"/>
+            <UserIcon size="128"/>
             <div class="upload-info ml20">
                 <div>
                 <p>Иконка пользователя</p>
@@ -26,18 +25,17 @@
         <textarea id="user-about" placeholder="Опишите себя"/>
         <div class="edit-btns">
             <ButtonSemiWhite value="Отмена" class="mr5"/>
-            <ButtonBlack value="Сохранить"/>
+            <button class="btnBlack">Сохранить</button>
         </div>
     </div>
-  </DefaultLayout>
+  </div>
 </template>
 
 <script>
-import DefaultLayout from '@/layouts/DefaultLayout'
 import BackTo from '@/components/BackTo'
 import ButtonBlack from '@/components/ButtonBlack'
 import ButtonSemiWhite from '@/components/ButtonSemiWhite'
-import PlaceholderEqual from '@/components/PlaceholderEqual'
+import UserIcon from '@/components/UserIcon'
 
 export default {
     name: 'UserSettings',
@@ -46,10 +44,9 @@ export default {
     },
 
     components: {
-        DefaultLayout,
         BackTo,
         ButtonBlack,
-        PlaceholderEqual,
+        UserIcon,
         ButtonSemiWhite
     }
 }

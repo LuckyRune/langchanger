@@ -1,8 +1,28 @@
 <template>
   <div id="app">
-    <router-view/>
+    <Header/>
+    <section id="content">
+      <div id="wrapper">
+          <section id="main">
+              <router-view/>
+          </section>
+          <Footer/>
+      </div>
+    </section>
   </div>
 </template>
+
+<script>
+import Header from '@/components/Header'
+import Footer from '@/components/Footer'
+
+export default {
+  components: {
+    Header,
+    Footer
+  }
+}
+</script>
 
 <style>
 @import url('https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap');
@@ -63,20 +83,25 @@ a {
   text-decoration: none;
 }
 /* Textarea */
-textarea {
-  padding: 5px;
+.origin-read-frame, textarea {
   border: 0;
   border-radius: 6px;
   font-size: 16px;
   min-height: 20px;
   box-shadow: 0 0 2px black;
 }
-textarea:focus {
-  box-shadow: 0 0 4px black;
+
+textarea {
+  padding: 5px;
 }
+
 /* Отступы */
 .mt5 {
   margin-top: 5px;
+}
+
+.mt20 {
+  margin-top: 20px;
 }
 
 .ml20 {
@@ -154,5 +179,91 @@ textarea:focus {
 .svg-placeholder img {
   width: 50%;
   height: 50%;
+}
+
+#main {
+  padding: 50px 20px 40px 20px;
+}
+
+#content {
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+#wrapper {
+  margin-top: -10px;
+  z-index: 0;
+  box-shadow: 0 0 7px black;
+}
+
+#wrapper, footer {
+  width: 1000px;
+}
+
+select {
+  width: 150px;
+  height: 40px;
+  font-size: 16px;
+  box-shadow: 0 0 2px black;
+  border-radius: 6px;
+  margin-right: 10px;
+}
+
+select:hover {
+  box-shadow: 0 0 4px black;
+}
+
+.btnBlack {
+  min-width: 150px;
+  height: 40px;
+  padding: 0 10px;
+  font-size: 18px;
+  text-transform: uppercase;
+  border: 0;
+  border-radius: 4px;
+  background-color: var(--secondary);
+  color: white;
+}
+
+.btnBlack:hover {
+  box-shadow: 0 0 3px black;
+  cursor: pointer;
+}
+
+.btnBlack:active {
+  background-color: white;
+  color: var(--secondary);
+  border: 1px solid var(--secondary);
+  box-shadow: 0 0 3px black inset;
+}
+
+.btnBlack:disabled {
+  background-color: gray;
+}
+
+.btnBlack:disabled:hover {
+  box-shadow: none;
+  cursor: default;
+}
+
+.btnDelete {
+  background-color: var(--large-accent);
+  padding: 6px 8px;
+  border-radius: 3px;
+  color: white;
+  border: 0;
+  margin-left: 5px;
+}
+
+.btnDelete:hover {
+  box-shadow: 0 0 2px black;
+  cursor: pointer;
+}
+
+.invalid-feedback {
+  margin-top: 5px;
+  color: var(--large-accent);
+  max-width: 440px;
 }
 </style>
