@@ -42,8 +42,13 @@ class AllUserView(APIView):
 
     def get(self, request):
         order_by = request.GET.get('order', 'rate')
+        search_sentence = request.GET.get('sentence')
 
         queryset = User.objects.filter(is_staff=False)
+
+        if search_sentence:
+            queryset = queryset.filter(username__unaccent__icontains=search_sentence)
+
         queryset = queryset.annotate(count_achievement=Count('user_profile__achievements'))
         queryset = queryset.annotate(count_translation=Count('translation_set'))
         queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
