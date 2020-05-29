@@ -12,7 +12,7 @@ CORS_ORIGIN_ALLOW_ALL = True
 
 BOT_TOKEN = os.environ.get('TG_BOT')
 
-STATIC_ROOT = os.path.join(FRONTEND_DIR, 'dist/static')
+STATIC_ROOT = os.path.join(FRONTEND_DIR, 'dist')
 
 STATIC_URL = '/static/'
 

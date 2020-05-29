@@ -129,6 +129,22 @@ class OneOriginView(APIView):
         return Response(content)
 
 
+class ReadOriginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    renderer_classes = [JSONRenderer]
+
+    def get(self, request):
+        pk = int(request.GET.get('origin', -1))
+
+        origin = get_object_or_404(Origin, pk=pk)
+        serializer = ReadOriginSerializer(origin)
+
+        content = {'data': serializer.data}
+
+        return Response(content)
+
+
 class TranslationByLanguageView(APIView):
     permission_classes = [permissions.AllowAny]
 
@@ -147,22 +163,6 @@ class TranslationByLanguageView(APIView):
             return Response(status=400)
 
         serializer = TranslationByLanguageSerializer(translations, many=True)
-
-        content = {'data': serializer.data}
-
-        return Response(content)
-
-
-class ReadOriginView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    renderer_classes = [JSONRenderer]
-
-    def get(self, request):
-        pk = int(request.GET.get('origin', -1))
-
-        origin = get_object_or_404(Origin, pk=pk)
-        serializer = ReadOriginSerializer(origin)
 
         content = {'data': serializer.data}
 
@@ -385,4 +385,3 @@ class MakeRateView(APIView):
         return Response({
             'errors': "Request rate doesn't exist"
         }, status=400)
-

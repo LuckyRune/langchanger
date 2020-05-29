@@ -106,68 +106,6 @@ class ProfileUserView(APIView):
         return Response(content, status=200)
 
 
-class AchievementView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    renderer_classes = [JSONRenderer]
-
-    def get(self, request):
-        pk = int(request.GET.get('achievement', -1))
-
-        achievement = get_object_or_404(Achievement, pk=pk)
-
-        serializer = AchievementSerializer(achievement)
-
-        content = {'data': serializer.data}
-
-        return Response(content)
-
-
-class OnHoldUserView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    renderer_classes = [JSONRenderer]
-
-    filter_name_set = {
-        'format': 'format_type__in',
-        'genre': 'genre__in',
-        'age': 'age_limit__in',
-        'language': 'origin_language__in',
-    }
-
-    def get(self, request):
-        raw_filter = request.GET.get('filters', {})
-        order_by = request.GET.get('order', 'relevance')
-        user = int(request.GET.get('user', -1))
-
-        origin_list = get_object_or_404(UserProfile, user=user).on_hold
-
-        complete_filter = {}
-        for key, data in raw_filter.items():
-            if key in self.filter_name_set:
-                filter_key = self.filter_name_set[key]
-                complete_filter[filter_key] = data
-
-        queryset = origin_list.filter(**complete_filter)
-
-        if order_by == 'relevance':
-            queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
-
-            queryset_not_null = queryset.filter(rate__isnull=False)
-            queryset_null = queryset.filter(rate__isnull=True).annotate(rate=Value(0, IntegerField()))
-            queryset = queryset_not_null.union(queryset_null)
-
-            queryset = queryset.order_by('-rate', 'id')
-
-        response_queryset = paginator(request, queryset)
-
-        serializer = AllOriginSerializer(response_queryset, many=True)
-
-        content = {'data': serializer.data}
-
-        return Response(content)
-
-
 class SettingUserView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
@@ -270,3 +208,65 @@ class RegisterUserView(APIView):
             'main_errors': serializer_user.errors,
             'profile_errors': serializer_profile.errors
         }, status=400)
+
+
+class AchievementView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    renderer_classes = [JSONRenderer]
+
+    def get(self, request):
+        pk = int(request.GET.get('achievement', -1))
+
+        achievement = get_object_or_404(Achievement, pk=pk)
+
+        serializer = AchievementSerializer(achievement)
+
+        content = {'data': serializer.data}
+
+        return Response(content)
+
+
+class OnHoldUserView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    renderer_classes = [JSONRenderer]
+
+    filter_name_set = {
+        'format': 'format_type__in',
+        'genre': 'genre__in',
+        'age': 'age_limit__in',
+        'language': 'origin_language__in',
+    }
+
+    def get(self, request):
+        raw_filter = request.GET.get('filters', {})
+        order_by = request.GET.get('order', 'relevance')
+        user = int(request.GET.get('user', -1))
+
+        origin_list = get_object_or_404(UserProfile, user=user).on_hold
+
+        complete_filter = {}
+        for key, data in raw_filter.items():
+            if key in self.filter_name_set:
+                filter_key = self.filter_name_set[key]
+                complete_filter[filter_key] = data
+
+        queryset = origin_list.filter(**complete_filter)
+
+        if order_by == 'relevance':
+            queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
+
+            queryset_not_null = queryset.filter(rate__isnull=False)
+            queryset_null = queryset.filter(rate__isnull=True).annotate(rate=Value(0, IntegerField()))
+            queryset = queryset_not_null.union(queryset_null)
+
+            queryset = queryset.order_by('-rate', 'id')
+
+        response_queryset = paginator(request, queryset)
+
+        serializer = AllOriginSerializer(response_queryset, many=True)
+
+        content = {'data': serializer.data}
+
+        return Response(content)
