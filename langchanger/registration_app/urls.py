@@ -10,7 +10,9 @@ urlpatterns = [
     url(r'^search/$', views.AllUserView.as_view(), name='search-user'),
 
     url(r'^achievement/$', views.AchievementView.as_view(), name='achievements'),
+
     url(r'^on-hold/$', views.OnHoldUserView.as_view(), name='user-on-hold'),
+    url(r'^on-hold/add/$', views.AddOnHoldUserView.as_view(), name='add-on-hold'),
 
     url(r'^setting/$', views.SettingUserView.as_view(), name='user-setting'),
     url(r'^delete/$', views.SettingUserView.as_view(), name='user-delete'),
