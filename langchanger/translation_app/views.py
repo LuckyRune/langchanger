@@ -153,9 +153,9 @@ class SearchOriginView(APIView):
     def get(self, request):
         search_sentence = request.GET.get('sentence')
 
-        queryset_by_title = Origin.objects.filter(title__unaccent__icontains=search_sentence)
-        queryset_by_author = Origin.objects.filter(author__unaccent__icontains=search_sentence)
-        queryset_by_description = Origin.objects.filter(description__unaccent__icontains=search_sentence)
+        queryset_by_title = Origin.objects.filter(title__icontains=search_sentence)
+        queryset_by_author = Origin.objects.filter(author__icontains=search_sentence)
+        queryset_by_description = Origin.objects.filter(description__icontains=search_sentence)
 
         queryset_by_description = queryset_by_description.difference(queryset_by_author, queryset_by_title)
         queryset_by_author = queryset_by_author.difference(queryset_by_title)
