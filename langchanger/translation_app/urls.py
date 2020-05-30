@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^origin/$', views.OneOriginView.as_view()),
     url(r'^origin/translation/$', views.TranslationByLanguageView.as_view()),
     url(r'^origin/read/$', views.ReadOriginView.as_view()),
+    url(r'^origin/search/$', views.SearchOriginView.as_view(), name='search-origin'),
 
     url(r'^translation/read/$', views.ReadTranslationView.as_view()),
     url(r'^translation/add/$', views.MakeTranslationView.as_view()),

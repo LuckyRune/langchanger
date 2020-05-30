@@ -145,6 +145,34 @@ class ReadOriginView(APIView):
         return Response(content)
 
 
+class SearchOriginView(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    renderer_classes = [JSONRenderer]
+
+    def get(self, request):
+        search_sentence = request.GET.get('sentence')
+
+        queryset_by_title = Origin.objects.filter(title__icontains=search_sentence)
+        queryset_by_author = Origin.objects.filter(author__icontains=search_sentence)
+        queryset_by_description = Origin.objects.filter(description__icontains=search_sentence)
+
+        queryset_by_description = queryset_by_description.difference(queryset_by_author, queryset_by_title)
+        queryset_by_author = queryset_by_author.difference(queryset_by_title)
+
+        serializer_title = AllOriginSerializer(queryset_by_title, many=True)
+        serializer_author = AllOriginSerializer(queryset_by_author, many=True)
+        serializer_description = AllOriginSerializer(queryset_by_description, many=True)
+
+        content = {
+            'origin_by_title': serializer_title.data,
+            'origin_by_author': serializer_author.data,
+            'origin_by_description': serializer_description.data,
+        }
+
+        return Response(content, status=200)
+
+
 class TranslationByLanguageView(APIView):
     permission_classes = [permissions.AllowAny]
 
