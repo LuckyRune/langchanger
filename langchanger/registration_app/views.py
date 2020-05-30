@@ -47,7 +47,7 @@ class AllUserView(APIView):
         queryset = User.objects.filter(is_staff=False)
 
         if search_sentence:
-            queryset = queryset.filter(username__unaccent__icontains=search_sentence)
+            queryset = queryset.filter(username__icontains=search_sentence)
 
         queryset = queryset.annotate(count_achievement=Count('user_profile__achievements'))
         queryset = queryset.annotate(count_translation=Count('translation_set'))
@@ -275,3 +275,24 @@ class OnHoldUserView(APIView):
         content = {'data': serializer.data}
 
         return Response(content)
+
+
+class AddOnHoldUserView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    renderer_classes = [JSONRenderer]
+
+    def put(self, request):
+        user = request.user.id
+        origin = int(request.POST.get('origin', -1))
+
+        profile = UserProfile.objects.get(user=user)
+        origin = get_object_or_404(Origin, id=origin)
+
+        profile.on_hold.add(origin)
+
+        profile.save()
+
+        ser = UserProfileSerializer(profile)
+
+        return Response(ser.data, status=200)
