@@ -1,2 +1,0 @@
-(window["webpackJsonp"]=window["webpackJsonp"]||[]).push([["chunk-2d22d746"],{f820:function(n,e,t){"use strict";t.r(e);var c=function(){var n=this,e=n.$createElement,t=n._self._c||e;return t("div")},u=[],a={name:"About",created:function(){document.title="О сайте - Langchanger"}},l=a,o=t("2877"),r=Object(o["a"])(l,c,u,!1,null,null,null);e["default"]=r.exports}}]);
-//# sourceMappingURL=chunk-2d22d746.9bb7dfd4.js.map
