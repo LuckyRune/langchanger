@@ -66,6 +66,7 @@ import SelectList from '@/components/SelectList'
 import ButtonBlack from '@/components/ButtonBlack'
 import axios from 'axios'
 import { mapGetters } from 'vuex'
+import { cors, host } from '../vars.js'
 
 export default {
     name: 'OriginPage',
@@ -85,13 +86,13 @@ export default {
         var sel = document.getElementById('select-language').selectedIndex
         var selectedLang = document.getElementById('select-language').options[sel].value
 
-        axios('http://127.0.0.1:8000/project-api/library/origin/translation/?origin=' + this.origin.id + '&language=' + selectedLang)
+        axios(host + 'project-api/library/origin/translation/?origin=' + this.origin.id + '&language=' + selectedLang)
         .then((response) => {
           this.authors = response.data.data
         })
       },
       getComments() {
-        axios('http://127.0.0.1:8000/project-api/library/comment-origin/?origin=' + this.id)
+        axios(host + 'project-api/library/comment-origin/?origin=' + this.id)
           .then((res) => {
             console.log(res.data.data)
             this.comments = res.data.data

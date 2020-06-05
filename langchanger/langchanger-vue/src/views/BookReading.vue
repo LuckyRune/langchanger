@@ -10,8 +10,8 @@
 <script>
 import ButtonBlack from '@/components/ButtonBlack'
 import axios from 'axios'
-import {mapGetters} from 'vuex'
-import { cors } from '../vars.js'
+import { mapGetters } from 'vuex'
+import { cors, host } from '../vars.js'
 
 export default {
     name: 'BookReading',
@@ -23,7 +23,7 @@ export default {
       }
     },
     created () {
-      axios('http://127.0.0.1:8000/project-api/library/origin/read/?origin=' + this.id, {
+      axios(host + 'project-api/library/origin/read/?origin=' + this.id, {
         method: 'GET'
       })
       .then((response) => {

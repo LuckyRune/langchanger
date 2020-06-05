@@ -23,6 +23,7 @@ import ButtonAccent from '@/components/ButtonAccent'
 import MainOriginTable from '@/components/MainOriginTable'
 import axios from 'axios'
 import { mapGetters } from 'vuex'
+import { cors, host } from '../vars.js'
 
 export default {
     name: 'Home',

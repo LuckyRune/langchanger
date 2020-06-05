@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import axios from 'axios'
+import { host } from '../vars.js'
 
 Vue.use(Vuex)
 
@@ -15,7 +16,7 @@ const store = new Vuex.Store({
     },
     actions: {
       GET_MAIN_ORIGINS({commit}) {
-        return axios('http://127.0.0.1:8000/project-api/library/main/', {
+        return axios(host + 'project-api/library/main/', {
           method: 'GET'
         })
         .then((response) => {
@@ -24,7 +25,7 @@ const store = new Vuex.Store({
       },
 
       GET_ORIGINS({commit}) {
-        return axios('http://127.0.0.1:8000/project-api/library/origin/all/?page_size=30', {
+        return axios(host + 'project-api/library/origin/all/?page_size=30', {
             method: 'GET'
         })
         .then((response) => {
@@ -33,7 +34,7 @@ const store = new Vuex.Store({
       },
 
       GET_USERS({commit}) {
-        return axios('http://127.0.0.1:8000/project-api/user/all/?page_size=30', {
+        return axios(host + 'project-api/user/all/?page_size=30', {
             method: 'GET'
         })
         .then((response) => {
@@ -47,7 +48,7 @@ const store = new Vuex.Store({
         if(context.getters.loggedIn) {
           return new Promise((resolve, reject) => {
 
-            axios.post('http://127.0.0.1:8000/auth/token/logout/')
+            axios.post(host + 'auth/token/logout/')
                 .then((response) => {
                 localStorage.removeItem('access_token')
                 context.commit('DESTROY_TOKEN')
@@ -69,7 +70,7 @@ const store = new Vuex.Store({
         form.append("email", credentials.email)
         form.append("password", credentials.password)
 
-        axios.post('http://127.0.0.1:8000/auth/token/login/', form)
+        axios.post(host + 'auth/token/login/', form)
             .then((response) => {
             const token = response.data.data.attributes.auth_token
             localStorage.setItem('access_token', token)
@@ -87,7 +88,7 @@ const store = new Vuex.Store({
 
         return new Promise((resolve, reject) => {
 
-          axios('http://127.0.0.1:8000/project-api/user/main-info/')
+          axios(host + 'project-api/user/main-info/')
               .then((response) => {
               context.commit('SET_CLIENT_USERNAME', response.data.username)
               context.commit('SET_USERID', response.data.id)
@@ -107,7 +108,7 @@ const store = new Vuex.Store({
         form.append("language", translationData.language)
         form.append("file", translationData.file, "file.txt")
 
-        axios.post('http://127.0.0.1:8000/project-api/library/translation/add/', form)
+        axios.post(host + 'project-api/library/translation/add/', form)
               .then((response) => {
               console.log(response)
               })
@@ -120,7 +121,7 @@ const store = new Vuex.Store({
         form.append("translation", versionData.translation)
         form.append("file", versionData.file, "file.txt")
 
-        axios.put('http://127.0.0.1:8000/project-api/library/translation/add-version/', form)
+        axios.put(host + 'project-api/library/translation/add-version/', form)
               .then((response) => {
               console.log(response)
               })
@@ -131,7 +132,7 @@ const store = new Vuex.Store({
         var form = new FormData()
         form.append("translation", delTranslationData.translation)
 
-        axios.delete('http://127.0.0.1:8000/project-api/library/translation/delete/', {
+        axios.delete(host + 'project-api/library/translation/delete/', {
           headers: {
             'Authorization': 'Token ' + context.state.token
           }, data: form
@@ -146,7 +147,7 @@ const store = new Vuex.Store({
         form.append("author", context.state.userID)
         form.append("origin", commentData.origin)
 
-        axios.post('http://127.0.0.1:8000/project-api/library/comment-origin/add/', form, {
+        axios.post(host + 'project-api/library/comment-origin/add/', form, {
           headers: {
             'Authorization': 'Token ' + context.state.token
           }

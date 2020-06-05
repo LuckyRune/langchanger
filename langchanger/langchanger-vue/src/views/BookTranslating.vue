@@ -16,7 +16,7 @@
 import ButtonBlack from '@/components/ButtonBlack'
 import axios from 'axios'
 import {mapGetters} from 'vuex'
-import { cors } from '../vars.js' 
+import { cors, host } from '../vars.js' 
 
 export default {
     name: 'BookTranslating',
@@ -45,14 +45,14 @@ export default {
       //     document.getElementById('origin-text').value = res.data
       //   })
       //   })
-      axios('http://127.0.0.1:8080/origins/' + this.id + '.txt')
+      axios(host + 'origins/' + this.id + '.txt')
       .then((response) => {
         document.getElementById('origin-text').value = response.data
       })
       if (this.loggedIn) {
-        axios('http://127.0.0.1:8000/project-api/library/origin/?origin=' + this.id)
+        axios(host + 'project-api/library/origin/?origin=' + this.id)
         .then((resp) => {
-          axios('http://127.0.0.1:8000/project-api/library/language/list')
+          axios(host + 'project-api/library/language/list')
           .then((res) => {
             let j = 0
             let arr = []
