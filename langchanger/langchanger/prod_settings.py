@@ -4,7 +4,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 FRONTEND_DIR = os.path.join(BASE_DIR, 'langchanger-vue')
 
-ALLOWED_HOSTS = ['test-d-v.herokuapp.com']
+ALLOWED_HOSTS = ['test-d-v.herokuapp.com', 'langchanger.herokuapp.com']
 
 DEBUG = False
 

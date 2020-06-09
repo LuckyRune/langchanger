@@ -7,7 +7,7 @@ from file_app.models import OriginFile, OriginIcon, VersionFile
 
 # Create your models here.
 class Genre(models.Model):
-    name = models.CharField('Название жанра произведения', max_length=30)
+    name = models.CharField('Название жанра', max_length=30)
 
     class Meta:
         verbose_name = 'Жанр'
@@ -18,11 +18,11 @@ class Genre(models.Model):
 
 
 class FormatType(models.Model):
-    name = models.CharField('Название формата произведения', max_length=30)
+    name = models.CharField('Название формата', max_length=30)
 
     class Meta:
-        verbose_name = 'Формат произведения'
-        verbose_name_plural = 'Форматы произведений'
+        verbose_name = 'Формат'
+        verbose_name_plural = 'Форматы'
 
     def __str__(self):
         return self.name
@@ -40,7 +40,7 @@ class Language(models.Model):
 
 
 class Origin(models.Model):
-    title = models.CharField('Название книги', max_length=50)
+    title = models.CharField('Название произведения', max_length=50)
     author = models.CharField('Автор', max_length=50, blank=True, null=True)
     description = models.TextField('Описание', max_length=1500, blank=True, null=True)
     creation_date = models.DateField('Дата создания', blank=True, null=True)
@@ -48,7 +48,7 @@ class Origin(models.Model):
     genre = models.ManyToManyField(Genre, verbose_name='Жанры', related_name='origin_set', blank=True)
     origin_language = models.ForeignKey(Language, verbose_name='Язык оригинала', related_name='origin_set',
                                         on_delete=models.SET_NULL, blank=True, null=True)
-    format_type = models.ForeignKey(FormatType, verbose_name='Формат книги', related_name='origin_set',
+    format_type = models.ForeignKey(FormatType, verbose_name='Формат', related_name='origin_set',
                                     on_delete=models.SET_NULL, blank=True, null=True)
 
     AGES = [
@@ -153,12 +153,12 @@ class Comment(models.Model):
 
 
 class CommentOrigin(Comment):
-    origin = models.ForeignKey(Origin, verbose_name='Книга', related_name="comment_origin_set",
+    origin = models.ForeignKey(Origin, verbose_name='Оригинал', related_name="comment_origin_set",
                                on_delete=models.CASCADE)
 
     class Meta:
-        verbose_name = 'Комментарий произведения'
-        verbose_name_plural = 'Комментарии произведений'
+        verbose_name = 'Комментарий оригинала'
+        verbose_name_plural = 'Комментарии оригиналов'
 
         ordering = ['-post_date', 'origin']
 
