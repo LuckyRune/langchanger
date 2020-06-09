@@ -45,7 +45,7 @@ export default {
     })
     .then(response => {
       this.GET_USER_SETTINGS()
-      this.$router.push('/')
+      this.$router.push({ name: 'Home' })
     })
     .catch((error) => {
       document.getElementById('invalid-login').style.display = "block"

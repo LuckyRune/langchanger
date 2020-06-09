@@ -12,7 +12,7 @@
 import ButtonBlack from '@/components/ButtonBlack'
 import axios from 'axios'
 import {mapGetters} from 'vuex'
-import { cors } from '../vars.js'
+import { cors, host } from '../vars.js'
 
 export default {
     name: 'AddVersion',
@@ -30,27 +30,27 @@ export default {
         ])
     },
     created () {
-         axios('http://127.0.0.1:8000/project-api/library/translation/read/?translation=' + this.id)
+         axios(host + 'project-api/library/translation/read/?translation=' + this.id)
          .then((response) => {
            this.origin = response.data.data.translation.origin
 
-            //  axios('http://127.0.0.1:8000/project-api/library/origin/read/?origin=' + this.origin)
-            // .then((resp) => {
-            //   var file = resp.data.data.source_link.file
-            //   axios(cors + file)
-            //   .then((res) => {
-            //     document.getElementById('origin-text').value = res.data
-            //   })
-            //   })
-            axios('http://127.0.0.1:8080/origins/' + this.origin + '.txt')
+             axios(host + 'project-api/library/origin/read/?origin=' + this.origin)
             .then((resp) => {
-            document.getElementById('origin-text').value = resp.data
-            })
+              var file = resp.data.data.source_link.file
+              axios(cors + file)
+              .then((res) => {
+                document.getElementById('origin-text').value = res.data
+              })
+              })
+            //axios(host + 'origins/' + this.origin + '.txt')
+            //.then((resp) => {
+            //document.getElementById('origin-text').value = resp.data
+            //})
               
               var text = response.data.data.last_version.version_link.file
               axios(cors + text)
-                .then((res) => {
-                document.getElementById('text-area').value = res.data
+                .then((respon) => {
+                document.getElementById('text-area').value = respon.data
               })
          })
     },

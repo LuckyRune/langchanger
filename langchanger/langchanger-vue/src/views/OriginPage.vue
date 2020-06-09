@@ -111,9 +111,7 @@ export default {
       }
     },
     created () {
-      axios('http://127.0.0.1:8000/project-api/library/origin/?origin=' + this.id, {
-        method: 'GET'
-      })
+      axios('http://127.0.0.1:8000/project-api/library/origin/?origin=' + this.id)
       .then((response) => {
         this.origin = response.data.data.origin
         this.translation_languages = response.data.data.languages
@@ -123,7 +121,10 @@ export default {
       .then((resp) => {
         console.log(resp.data.data)
         this.comments = resp.data.data
-      })     
+      })
+      .catch((error) => {
+        console.log(error.response)
+      })
     },
     computed: {
       ...mapGetters([

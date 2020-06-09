@@ -7,8 +7,9 @@ export default new Router({
     mode: 'history',
     routes: [
         {
-            path: '/',
+            path: '/static',
             component: () => import('./views/Home.vue'),
+            name: 'Home'
         },
         {
             path: '/library',

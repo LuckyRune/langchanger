@@ -2,17 +2,18 @@
 <div class="asd">
     <div class="origin-table">
         <OriginLink
-        v-for="origin in ORIGINS"
+        v-for="origin in paginatedOrigins"
         :key="origin.id"
         :origins_data="origin"
         />
     </div>
-    <!-- <div class="pagination">
-          <div class="page"
+    <div class="pagination">
+          <div class="page" :class="{ 'active-page': page === pageNumber }"
           v-for="page in pages"
           :key="page"
+          @click="pageClick(page)"
           >{{ page }}</div>
-        </div> -->
+        </div>
     </div>
 </template>
 
@@ -33,20 +34,24 @@ export default {
     methods: {
         ...mapActions([
             'GET_ORIGINS'
-        ])
+        ]),
+
+        pageClick(page) {
+            this.pageNumber = page
+        }
     },
     computed: {
         ...mapGetters([
             'ORIGINS'
         ]),
-    //     pages() {
-    //     return Math.ceil(this.ORIGINS.length / 10)
-    //   },
-    //   paginatedUsers() {
-    //       let from = (this.pageNumber - 1) * this.usersPerPage
-    //       let to = from + this.usersPerPage
-    //       return this.ORIGINS.slice(from, to)
-    //   }
+        pages() {
+        return Math.ceil(this.ORIGINS.length / 10)
+      },
+      paginatedOrigins() {
+          let from = (this.pageNumber - 1) * this.originsPerPage
+          let to = from + this.originsPerPage
+          return this.ORIGINS.slice(from, to)
+      }
     },
     mounted() {
         this.GET_ORIGINS()
@@ -72,7 +77,25 @@ export default {
 
 .page {
     padding: 8px;
-    border: 1px solid black;
-    margin: 1px;
+    box-shadow: 0 0 2px black;
+    margin: 2px;
+    border-radius: 5px;
+}
+
+.page:hover {
+  cursor: pointer;
+  background-color: var(--secondary);
+  color: white;
+}
+
+.page:active {
+  box-shadow: 0 0 2px black inset;
+  background-color: white;
+  color: black;
+}
+
+.active-page {
+  background-color: var(--secondary);
+  color: white;
 }
 </style>

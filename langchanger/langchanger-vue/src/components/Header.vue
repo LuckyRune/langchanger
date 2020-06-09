@@ -3,7 +3,7 @@
         <div class="username-div"><p v-if="loggedIn" id="username-p">Вы вошли как: <a :href="/user/ + USERID">{{CLIENT_USERNAME}}</a></p></div>
         <nav>
             <Finder/>
-            <a href="/"><img src="@/assets/svg/logo.svg"></a>
+            <router-link :to="{ name: 'Home' }"><img src="@/assets/svg/logo.svg"></router-link>
             <MainMenu/>
         </nav>
         <div>

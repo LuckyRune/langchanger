@@ -83,7 +83,7 @@
             </span>
         </div>
       </aside>
-      <section>
+      <section class="origin-table">
         <OriginTable/>
       </section>
     </section>
@@ -127,7 +127,7 @@ h4 {
 
 aside {
   margin-top: 50px;
-  margin-right: 60px;
+  margin-right: 20px;
 }
 
 aside div {
@@ -184,5 +184,9 @@ input[type=radio] + label {
 
 input[type=checkbox]:checked + label, input[type=radio]:checked + label {
   background-position: 0 -16px;
+}
+
+.origin-table {
+  width: 800px;
 }
 </style>

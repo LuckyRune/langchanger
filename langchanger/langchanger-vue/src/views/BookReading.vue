@@ -11,7 +11,7 @@
 import ButtonBlack from '@/components/ButtonBlack'
 import axios from 'axios'
 import {mapGetters} from 'vuex'
-import { cors } from '../vars.js'
+import { cors, host } from '../vars.js'
 
 export default {
     name: 'BookReading',
@@ -23,15 +23,13 @@ export default {
       }
     },
     created () {
-      axios('http://127.0.0.1:8000/project-api/library/origin/read/?origin=' + this.id, {
-        method: 'GET'
-      })
+      axios(host + 'project-api/library/origin/read/?origin=' + this.id)
       .then((response) => {
-        var file = response.data.data.source_link.file
-        axios(cors + file)
-          .then((res) => {
-          document.getElementById('origin-text').value = res.data
-        })
+          var file = response.data.data.source_link.file
+          axios(cors + file)
+            .then((res) => {
+            document.getElementById('origin-text').value = res.data
+          })
         })
       // axios('http://127.0.0.1:8080/origins/' + this.id + '.txt')
       // .then((response) => {

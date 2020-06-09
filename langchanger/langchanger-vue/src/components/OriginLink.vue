@@ -36,8 +36,6 @@ export default {
 
 .book-title {
   max-width: 130px;
-  overflow: hidden;
-  text-overflow: clip;
 }
 
 a {

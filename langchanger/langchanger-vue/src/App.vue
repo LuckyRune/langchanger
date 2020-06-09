@@ -176,10 +176,10 @@ textarea {
   justify-content: center;
   align-items: center;
 }
-.svg-placeholder img {
+/*.svg-placeholder img {
   width: 50%;
   height: 50%;
-}
+} */
 
 #main {
   padding: 50px 20px 40px 20px;

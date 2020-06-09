@@ -37,7 +37,7 @@
 
 <script>
 import axios from 'axios'
-import { cors } from '../vars.js'
+import { cors, host } from '../vars.js'
 import { mapGetters, mapMutations } from 'vuex'
 
 export default {
@@ -52,7 +52,7 @@ export default {
       }
     },
     created () {
-      axios('http://127.0.0.1:8000/project-api/library/translation/read/?translation=' + this.id)
+      axios(host + 'project-api/library/translation/read/?translation=' + this.id)
       .then((response) => {
 
         var file = response.data.data.last_version.version_link.file

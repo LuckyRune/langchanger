@@ -11,6 +11,7 @@
 <script>
 import PageHeader from '@/components/PageHeader'
 import axios from 'axios'
+import { cors, host } from '../vars.js'
 
 export default {
     name: 'Changes',
@@ -21,7 +22,7 @@ export default {
         }
     },
     created() {
-        axios('http://127.0.0.1:8000/project-api/library/version/all/?translation=' + this.id)
+        axios(host + 'project-api/library/version/all/?translation=' + this.id)
         .then((response) => {
             console.log(response.data.data)
             this.versions = response.data.data
