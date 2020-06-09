@@ -16,7 +16,7 @@ const store = new Vuex.Store({
     },
     actions: {
       GET_MAIN_ORIGINS({commit}) {
-        return axios(host + 'project-api/library/main/', {
+        return axios(host + '/project-api/library/main/', {
           method: 'GET'
         })
         .then((response) => {
@@ -25,14 +25,14 @@ const store = new Vuex.Store({
       },
 
       GET_ORIGINS({commit}) {
-        return axios(host + 'project-api/library/origin/all/?page_size=999999999999')
+        return axios(host + '/project-api/library/origin/all/?page_size=999999999999')
         .then((response) => {
           commit('SET_ORIGINS', response.data.data)
         })
       },
 
       GET_USERS({commit}) {
-        return axios(host + 'project-api/user/all/?page_size=30', {
+        return axios(host + '/project-api/user/all/?page_size=30', {
             method: 'GET'
         })
         .then((response) => {
@@ -68,7 +68,7 @@ const store = new Vuex.Store({
         form.append("email", credentials.email)
         form.append("password", credentials.password)
 
-        axios.post(host + 'auth/token/login/', form)
+        axios.post(host + '/auth/token/login/', form)
             .then((response) => {
             const token = response.data.data.attributes.auth_token
             localStorage.setItem('access_token', token)
@@ -86,7 +86,7 @@ const store = new Vuex.Store({
 
         return new Promise((resolve, reject) => {
 
-          axios(host + 'project-api/user/main-info/')
+          axios(host + '/project-api/user/main-info/')
               .then((response) => {
               context.commit('SET_CLIENT_USERNAME', response.data.username)
               context.commit('SET_USERID', response.data.id)
@@ -106,7 +106,7 @@ const store = new Vuex.Store({
         form.append("language", translationData.language)
         form.append("file", translationData.file, "file.txt")
 
-        axios.post(host + 'project-api/library/translation/add/', form)
+        axios.post(host + '/project-api/library/translation/add/', form)
               .then((response) => {
               console.log(response)
               })
@@ -119,7 +119,7 @@ const store = new Vuex.Store({
         form.append("translation", versionData.translation)
         form.append("file", versionData.file, "file.txt")
 
-        axios.put(host + 'project-api/library/translation/add-version/', form)
+        axios.put(host + '/project-api/library/translation/add-version/', form)
               .then((response) => {
               console.log(response)
               })
@@ -130,7 +130,7 @@ const store = new Vuex.Store({
         var form = new FormData()
         form.append("translation", delTranslationData.translation)
 
-        axios.delete(host + 'project-api/library/translation/delete/', {
+        axios.delete(host + '/project-api/library/translation/delete/', {
           headers: {
             'Authorization': 'Token ' + context.state.token
           }, data: form
@@ -145,7 +145,7 @@ const store = new Vuex.Store({
         form.append("author", context.state.userID)
         form.append("origin", commentData.origin)
 
-        axios.post(host + 'project-api/library/comment-origin/add/', form, {
+        axios.post(host + '/project-api/library/comment-origin/add/', form, {
           headers: {
             'Authorization': 'Token ' + context.state.token
           }

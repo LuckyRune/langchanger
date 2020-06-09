@@ -76,6 +76,7 @@ import UserIcon from '@/components/UserIcon'
 import Modal from '@/layouts/DefaultModal'
 import axios from 'axios'
 import { mapGetters } from 'vuex'
+import { host } from '../vars.js'
 
 export default {
     name: 'User',
@@ -92,7 +93,7 @@ export default {
       }
     },
     created () {
-      axios('http://127.0.0.1:8000/project-api/user/profile/?user=' + this.id, {
+      axios(host + '/project-api/user/profile/?user=' + this.id, {
         method: 'GET'
       })
       .then((response) => {
@@ -108,7 +109,7 @@ export default {
     },
     methods: {
       getTranslations() {
-        axios('http://127.0.0.1:8000/project-api/user/profile/?user=' + this.id)
+        axios(host + '/project-api/user/profile/?user=' + this.id)
         .then((response) => {
         this.translations = response.data.data.translations
       })

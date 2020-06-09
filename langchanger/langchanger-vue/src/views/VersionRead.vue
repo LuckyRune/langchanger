@@ -18,7 +18,7 @@ export default {
         } 
     },
     created() {
-        axios('http://127.0.0.1:8000/project-api/library/version/differences/?version=' + this.id)
+        axios(host + '/project-api/library/version/differences/?version=' + this.id)
         .then((response) => {
             console.log(response.data.data.current_version)
             this.date = response.data.data.current_version.creation_date.substr(0, 10)

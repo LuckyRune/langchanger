@@ -74,6 +74,7 @@ import ButtonBlack from '@/components/ButtonBlack'
 import UserIcon from '@/components/UserIcon'
 import axios from 'axios'
 import { required, minLength, maxLength, alphaNum, numeric, alpha, not, email, sameAs } from 'vuelidate/lib/validators'
+import { host } from '../vars.js'
 
 export default {
     name: 'Register',
@@ -98,7 +99,7 @@ export default {
         payload.append("password2", this.password2)
         if (this.description !== '' || null) payload.append("description", this.description)
 
-        axios.post('http://127.0.0.1:8000/project-api/user/register/', payload)
+        axios.post(host + '/project-api/user/register/', payload)
             .then((response) => {
             console.log(response)
             this.$router.push('/login')

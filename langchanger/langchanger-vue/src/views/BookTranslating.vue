@@ -35,7 +35,7 @@ export default {
         ])
     },
     created () {
-      axios(host + 'project-api/library/origin/read/?origin=' + this.id)
+      axios(host + '/project-api/library/origin/read/?origin=' + this.id)
       .then((response) => {
         var file = response.data.data.source_link.file
         axios(cors + file)
@@ -48,9 +48,9 @@ export default {
       //  document.getElementById('origin-text').value = response.data
       //})
       if (this.loggedIn) {
-        axios(host + 'project-api/library/origin/?origin=' + this.id)
+        axios(host + '/project-api/library/origin/?origin=' + this.id)
         .then((resp) => {
-          axios(host + 'project-api/library/language/list')
+          axios(host + '/project-api/library/language/list')
           .then((res) => {
             let j = 0
             let arr = []

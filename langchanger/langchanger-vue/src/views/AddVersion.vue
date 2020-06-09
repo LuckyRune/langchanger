@@ -30,11 +30,11 @@ export default {
         ])
     },
     created () {
-         axios(host + 'project-api/library/translation/read/?translation=' + this.id)
+         axios(host + '/project-api/library/translation/read/?translation=' + this.id)
          .then((response) => {
            this.origin = response.data.data.translation.origin
 
-             axios(host + 'project-api/library/origin/read/?origin=' + this.origin)
+             axios(host + '/project-api/library/origin/read/?origin=' + this.origin)
             .then((resp) => {
               var file = resp.data.data.source_link.file
               axios(cors + file)

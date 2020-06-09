@@ -22,7 +22,7 @@ export default {
         }
     },
     created() {
-        axios(host + 'project-api/library/version/all/?translation=' + this.id)
+        axios(host + '/project-api/library/version/all/?translation=' + this.id)
         .then((response) => {
             console.log(response.data.data)
             this.versions = response.data.data

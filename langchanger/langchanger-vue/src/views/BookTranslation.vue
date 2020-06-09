@@ -52,7 +52,7 @@ export default {
       }
     },
     created () {
-      axios(host + 'project-api/library/translation/read/?translation=' + this.id)
+      axios(host + '/project-api/library/translation/read/?translation=' + this.id)
       .then((response) => {
 
         var file = response.data.data.last_version.version_link.file

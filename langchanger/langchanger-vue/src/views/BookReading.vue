@@ -23,7 +23,7 @@ export default {
       }
     },
     created () {
-      axios(host + 'project-api/library/origin/read/?origin=' + this.id)
+      axios(host + '/project-api/library/origin/read/?origin=' + this.id)
       .then((response) => {
           var file = response.data.data.source_link.file
           axios(cors + file)

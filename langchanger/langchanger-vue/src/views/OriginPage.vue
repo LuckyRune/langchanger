@@ -66,7 +66,7 @@ import SelectList from '@/components/SelectList'
 import ButtonBlack from '@/components/ButtonBlack'
 import axios from 'axios'
 import { mapGetters } from 'vuex'
-
+import { host } from '../vars.js'
 export default {
     name: 'OriginPage',
     data() {
@@ -85,13 +85,13 @@ export default {
         var sel = document.getElementById('select-language').selectedIndex
         var selectedLang = document.getElementById('select-language').options[sel].value
 
-        axios('http://127.0.0.1:8000/project-api/library/origin/translation/?origin=' + this.origin.id + '&language=' + selectedLang)
+        axios(host + '/project-api/library/origin/translation/?origin=' + this.origin.id + '&language=' + selectedLang)
         .then((response) => {
           this.authors = response.data.data
         })
       },
       getComments() {
-        axios('http://127.0.0.1:8000/project-api/library/comment-origin/?origin=' + this.id)
+        axios(host + '/project-api/library/comment-origin/?origin=' + this.id)
           .then((res) => {
             console.log(res.data.data)
             this.comments = res.data.data
@@ -111,13 +111,13 @@ export default {
       }
     },
     created () {
-      axios('http://127.0.0.1:8000/project-api/library/origin/?origin=' + this.id)
+      axios(host + '/project-api/library/origin/?origin=' + this.id)
       .then((response) => {
         this.origin = response.data.data.origin
         this.translation_languages = response.data.data.languages
         document.title = response.data.data.origin.title + " - Langchanger"
       })
-      axios('http://127.0.0.1:8000/project-api/library/comment-origin/?origin=' + this.id)
+      axios(host + '/project-api/library/comment-origin/?origin=' + this.id)
       .then((resp) => {
         console.log(resp.data.data)
         this.comments = resp.data.data
