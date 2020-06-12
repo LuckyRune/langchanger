@@ -375,6 +375,9 @@ class MakeOriginCommentView(APIView):
             return Response(status=200)
         return Response(comment_serializer.errors, status=400)
 
+    def delete(self, request):
+        pass
+
 
 class MakeRateView(APIView):
     permission_classes = [permissions.IsAuthenticated]

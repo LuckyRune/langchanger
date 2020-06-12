@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404
 from django.db.models import Count, Sum, Value, IntegerField
+from django.contrib.auth.models import Group, Permission
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -27,6 +28,17 @@ def paginator(request, queryset):
     queryset_part = queryset[first_item:last_item]
 
     return queryset_part
+
+
+class ModeratorPermission(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        user_id = request.user.id
+        groups = get_object_or_404(User, pk=user_id).groups.filter(name='Moderator')
+
+        if groups:
+            return True
+        return False
 
 
 class AllUserView(APIView):
@@ -296,3 +308,26 @@ class AddOnHoldUserView(APIView):
         ser = UserProfileSerializer(profile)
 
         return Response(ser.data, status=200)
+
+
+class BanUserView(APIView):
+    permission_classes = [ModeratorPermission]
+
+    renderer_classes = [JSONRenderer]
+
+    def put(self, request):
+        pass
+
+
+class TestView(APIView):
+    permission_classes = [ModeratorPermission]
+
+    renderer_classes = [JSONRenderer]
+
+    def get(self, request):
+
+        check = User.objects.get(pk=request.user.id).groups.filter(name='Moderator').values()
+        # if check:
+        #     return Response(status=200)
+        # return Response(status=400)
+        return Response({'data': check})

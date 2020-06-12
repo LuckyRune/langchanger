@@ -19,4 +19,6 @@ urlpatterns = [
 
     url(r'^register/$', views.RegisterUserView.as_view(), name='registration'),
 
+    url(r'^test/$', views.TestView.as_view(), name='test'),
+
 ]
