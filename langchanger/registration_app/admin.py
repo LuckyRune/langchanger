@@ -14,3 +14,10 @@ class UserProfileAdmin(admin.ModelAdmin):
 class AchievementAdmin(admin.ModelAdmin):
     fields = ('name', 'description', 'rate', 'icon')
     list_display = ('name', 'rate')
+
+
+@admin.register(Blacklist)
+class BlacklistAdmin(admin.ModelAdmin):
+    fields = ('user', 'ip')
+    list_display = ('user', 'ip')
+

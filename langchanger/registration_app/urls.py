@@ -19,6 +19,9 @@ urlpatterns = [
 
     url(r'^register/$', views.RegisterUserView.as_view(), name='registration'),
 
+    url(r'^ban/$', views.BanUserView.as_view(), name='ban-user'),
+    url(r'^unban/$', views.BanUserView.as_view(), name='unban-user'),
+
     url(r'^test/$', views.TestView.as_view(), name='test'),
 
 ]

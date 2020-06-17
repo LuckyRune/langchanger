@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-from django.db.models import Count, Sum, Value, IntegerField
+from django.db.models import Count, Sum, Value, IntegerField, Q
 from django.contrib.auth.models import Group, Permission
 
 from rest_framework.views import APIView
@@ -30,15 +30,39 @@ def paginator(request, queryset):
     return queryset_part
 
 
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
+
+
 class ModeratorPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
         user_id = request.user.id
-        groups = get_object_or_404(User, pk=user_id).groups.filter(name='Moderator')
+        user = User.objects.get(pk=user_id)
 
-        if groups:
+        is_moderator = get_object_or_404(User, pk=user_id).groups.filter(name__icontains='Moderator')
+
+        if is_moderator or user.is_staff:
             return True
         return False
+
+
+class BlacklistPermission(permissions.BasePermission):
+
+    def has_permission(self, request, view):
+        user_ip = get_client_ip(request)
+
+        check = Blacklist.objects.filter(Q(ip=user_ip) | Q(user__id=request.user.id))
+
+        if check:
+            return False
+
+        return True
 
 
 class AllUserView(APIView):
@@ -195,6 +219,8 @@ class RegisterUserView(APIView):
     renderer_classes = [JSONRenderer]
 
     def post(self, request):
+        ip = get_client_ip(request)
+
         serializer_user = RegisterUserSerializer(data=request.data)
         serializer_profile = PostUserProfileSerializer(data=request.data)
 
@@ -214,10 +240,10 @@ class RegisterUserView(APIView):
                     }, status=400)
 
                 user = serializer_user.save()
-                serializer_profile.save(user=user, profile_icon=icon)
+                serializer_profile.save(user=user, profile_icon=icon, ip=ip)
             else:
                 user = serializer_user.save()
-                serializer_profile.save(user=user)
+                serializer_profile.save(user=user, ip=ip)
 
             return Response(status=200)
 
@@ -305,9 +331,9 @@ class AddOnHoldUserView(APIView):
 
         profile.save()
 
-        ser = UserProfileSerializer(profile)
+        serializer = UserProfileSerializer(profile)
 
-        return Response(ser.data, status=200)
+        return Response(serializer.data, status=200)
 
 
 class BanUserView(APIView):
@@ -315,12 +341,47 @@ class BanUserView(APIView):
 
     renderer_classes = [JSONRenderer]
 
-    def put(self, request):
+    def get(self, request):
         pass
+
+    def post(self, request):
+        user_id = int(request.POST.get('user', -1))
+        serializer_banned_user = BlacklistSerializer(data=request.data)
+
+        if serializer_banned_user.is_valid():
+            serializer_banned_user.save()
+
+            return Response(status=200)
+        return Response(status=400)
+
+    def delete(self, request):
+        user_id = int(request.POST.get('user', -1))
+
+        banned_user = get_object_or_404(Blacklist, user=user_id)
+        banned_user.delete()
+
+        return Response(status=200)
+
+
+class BanUserIPView(APIView):
+    permission_classes = [ModeratorPermission]
+
+    renderer_classes = [JSONRenderer]
+
+    def post(self, request):
+        user_id = int(request.POST.get('user', -1))
+
+        banned_user = get_object_or_404(Blacklist, user=user_id)
+        user_profile = get_object_or_404(UserProfile, user__id=user_id)
+
+        banned_user.ip = user_profile.ip
+        banned_user.save()
+
+        return Response(status=200)
 
 
 class TestView(APIView):
-    permission_classes = [ModeratorPermission]
+    permission_classes = [BlacklistPermission]
 
     renderer_classes = [JSONRenderer]
 
@@ -330,4 +391,4 @@ class TestView(APIView):
         # if check:
         #     return Response(status=200)
         # return Response(status=400)
-        return Response({'data': check})
+        return Response({'data': get_client_ip(request)})

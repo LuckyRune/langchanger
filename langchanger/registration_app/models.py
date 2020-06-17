@@ -10,6 +10,7 @@ from file_app.models import UserIcon, AchievementIcon
 class UserProfile(models.Model):
 
     description = models.TextField('О себе', max_length=1000, blank=True, null=True)
+    ip = models.CharField('IP', max_length=25, null=True, blank=True)
 
     user = models.OneToOneField(User, related_name='user_profile',
                                 verbose_name='Основной пользователь', on_delete=models.CASCADE)
@@ -44,3 +45,18 @@ class Achievement(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Blacklist(models.Model):
+    ip = models.CharField('IP', max_length=25, null=True, blank=True)
+    user = models.ForeignKey(User, verbose_name='Пользователь', on_delete=models.SET_NULL, null=True)
+
+    class Meta:
+        verbose_name = 'Забаненый пользователь'
+        verbose_name_plural = 'Чёрный список'
+
+    def __str__(self):
+        blacklist_label = "{} - забанен".format(self.user.username)
+        return blacklist_label
+
+

@@ -98,3 +98,17 @@ class RegisterUserSerializer(serializers.ModelSerializer):
 
         return user
 
+
+class BlacklistSerializer(serializers.ModelSerializer):
+    user = RateUserSerializer()
+
+    class Meta:
+        model = Blacklist
+        fields = ('user', )
+
+
+class PostBlacklistSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Blacklist
+        fields = ('user', )
