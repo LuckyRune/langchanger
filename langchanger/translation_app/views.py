@@ -1,21 +1,15 @@
-from django.shortcuts import get_object_or_404, get_list_or_404
-from django.db.models import Q, Sum, F, Value, IntegerField
-from django.http import Http404
-from django.contrib.auth.models import User
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import permissions
-from rest_framework.renderers import JSONRenderer
+from django.db.models import Value, IntegerField
+from django.shortcuts import get_list_or_404
 from rest_framework.generics import ListAPIView
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .models import *
-from .serializers import *
-from registration_app.serializers import RateUserSerializer
-
-from file_app.serializers import VersionFileSerializer
-from file_app.models import VersionFile
 from file_app.bot import send_file
+from file_app.models import VersionFile
+from file_app.serializers import VersionFileSerializer
+from registration_app.permissions import *
+from .serializers import *
 
 
 def paginator(request, queryset):
@@ -225,7 +219,7 @@ class ReadTranslationView(APIView):
 
 
 class MakeTranslationView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, BlacklistPermission]
 
     renderer_classes = [JSONRenderer]
 
@@ -305,7 +299,7 @@ class AllVersionView(APIView):
 
 
 class DeleteVersionView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, BlacklistPermission]
 
     renderer_classes = [JSONRenderer]
 
@@ -361,13 +355,13 @@ class OriginCommentView(APIView):
         return Response(content)
 
 
-class MakeOriginCommentView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+class CreateCommentOriginView(APIView):
+    permission_classes = [permissions.IsAuthenticated, BlacklistPermission]
 
     renderer_classes = [JSONRenderer]
 
     def post(self, request):
-        comment_serializer = MakeOriginCommentSerializer(data=request.data)
+        comment_serializer = MakeCommentOriginSerializer(data=request.data)
 
         if comment_serializer.is_valid():
             comment_serializer.save()
@@ -375,12 +369,24 @@ class MakeOriginCommentView(APIView):
             return Response(status=200)
         return Response(comment_serializer.errors, status=400)
 
+
+class ChangeCommentOriginView(APIView):
+    permission_classes = [ModeratorPermission]
+
+    renderer_classes = [JSONRenderer]
+
     def delete(self, request):
-        pass
+        comment_id = int(request.POST.get('comment', -1))
+
+        comment = get_object_or_404(CommentOrigin, id=comment_id)
+
+        comment.delete()
+
+        return Response(status=200)
 
 
 class MakeRateView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated, BlacklistPermission]
 
     renderer_classes = [JSONRenderer]
 
