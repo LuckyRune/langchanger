@@ -1,21 +1,15 @@
-from django.shortcuts import get_object_or_404
-from django.db.models import Count, Sum, Value, IntegerField, Q
-from django.contrib.auth.models import Group, Permission
-
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework import permissions
+from django.db.models import Count, Sum, Value, IntegerField
 from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
-from .models import *
-from .serializers import *
-
+from file_app.bot import send_image
+from file_app.models import UserIcon
+from file_app.serializers import UserIconSerializer
 from translation_app.models import Translation
 from translation_app.serializers import AllTranslationSerializer, AllOriginSerializer
-
-from file_app.serializers import UserIconSerializer
-from file_app.models import UserIcon
-from file_app.bot import send_image
+from .permissions import *
+from .serializers import *
 
 
 def paginator(request, queryset):
@@ -37,32 +31,6 @@ def get_client_ip(request):
     else:
         ip = request.META.get('REMOTE_ADDR')
     return ip
-
-
-class ModeratorPermission(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        user_id = request.user.id
-        user = User.objects.get(pk=user_id)
-
-        is_moderator = get_object_or_404(User, pk=user_id).groups.filter(name__icontains='Moderator')
-
-        if is_moderator or user.is_staff:
-            return True
-        return False
-
-
-class BlacklistPermission(permissions.BasePermission):
-
-    def has_permission(self, request, view):
-        user_ip = get_client_ip(request)
-
-        check = Blacklist.objects.filter(Q(ip=user_ip) | Q(user__id=request.user.id))
-
-        if check:
-            return False
-
-        return True
 
 
 class AllUserView(APIView):
@@ -116,8 +84,12 @@ class MainUserInfoView(APIView):
         user = User.objects.get(pk=pk)
 
         user_serializer = RateUserSerializer(user)
+        group_serializer = GroupSerializer(user.groups, many=True)
 
-        return Response(user_serializer.data, status=200)
+        return Response({
+            'main': user_serializer.data,
+            'groups': group_serializer.data
+        }, status=200)
 
 
 class ProfileUserView(APIView):
@@ -315,8 +287,8 @@ class OnHoldUserView(APIView):
         return Response(content)
 
 
-class AddOnHoldUserView(APIView):
-    permission_classes = [permissions.IsAuthenticated]
+class ChangeOnHoldUserView(APIView):
+    permission_classes = [permissions.IsAuthenticated, BlacklistPermission]
 
     renderer_classes = [JSONRenderer]
 
@@ -335,6 +307,22 @@ class AddOnHoldUserView(APIView):
 
         return Response(serializer.data, status=200)
 
+    def delete(self, request):
+        user = request.user.id
+
+        origin = int(request.POST.get('origin', -1))
+
+        profile = UserProfile.objects.get(user=user)
+        origin = get_object_or_404(Origin, id=origin)
+
+        profile.on_hold.remove(origin)
+
+        profile.save()
+
+        serializer = UserProfileSerializer(profile)
+
+        return Response(serializer.data, status=200)
+
 
 class BanUserView(APIView):
     permission_classes = [ModeratorPermission]
@@ -342,11 +330,17 @@ class BanUserView(APIView):
     renderer_classes = [JSONRenderer]
 
     def get(self, request):
-        pass
+        queryset = Blacklist.objects.all()
+
+        response_queryset = paginator(request, queryset)
+
+        serializer = BlacklistSerializer(response_queryset, many=True)
+
+        return Response(serializer.data, status=200)
 
     def post(self, request):
         user_id = int(request.POST.get('user', -1))
-        serializer_banned_user = BlacklistSerializer(data=request.data)
+        serializer_banned_user = PostBlacklistSerializer(data=request.data)
 
         if serializer_banned_user.is_valid():
             serializer_banned_user.save()
