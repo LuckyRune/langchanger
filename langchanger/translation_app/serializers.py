@@ -1,10 +1,9 @@
+from django.db.models import Sum
 from rest_framework import serializers
 
-from django.db.models import Sum
-
-from .models import *
-from registration_app.serializers import RateUserSerializer
 from file_app.serializers import OriginFileSerializer, OriginIconSerializer, VersionFileSerializer
+from registration_app.serializers import RateUserSerializer
+from .models import *
 
 
 def get_user_with_rate(obj):
@@ -148,8 +147,7 @@ class OriginCommentSerializer(serializers.ModelSerializer):
         return get_user_with_rate(obj)
 
 
-class MakeOriginCommentSerializer(serializers.ModelSerializer):
-
+class MakeCommentOriginSerializer(serializers.ModelSerializer):
     class Meta:
         model = CommentOrigin
         fields = ('post', 'author', 'origin', 'parent_comment')
