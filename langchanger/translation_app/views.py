@@ -6,8 +6,6 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from file_app.bot import send_file
-from file_app.models import VersionFile
-from file_app.serializers import VersionFileSerializer
 from registration_app.permissions import *
 from .serializers import *
 
@@ -92,7 +90,6 @@ class AllOriginView(APIView):
         response_queryset = paginator(request, queryset)
 
         serializer = AllOriginSerializer(response_queryset, many=True)
-
         content = {'data': serializer.data}
 
         return Response(content)
