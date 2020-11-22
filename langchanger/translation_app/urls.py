@@ -29,4 +29,7 @@ urlpatterns = [
 
     url(r'^rate/add/$', views.MakeRateView.as_view()),
     url(r'^rate/delete/$', views.MakeRateView.as_view()),
+
+    # statistic
+    url(r'^statistic/comment-origin/', views.OriginCommentStatistic.as_view()),
 ]

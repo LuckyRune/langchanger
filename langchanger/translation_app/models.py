@@ -1,6 +1,7 @@
-from django.db import models
+import datetime
 
 from django.contrib.auth.models import User
+from django.db import models
 
 from file_app.models import OriginFile, OriginIcon, VersionFile
 
@@ -42,14 +43,24 @@ class Language(models.Model):
 class Origin(models.Model):
     title = models.CharField('Название произведения', max_length=50)
     author = models.CharField('Автор', max_length=50, blank=True, null=True)
-    description = models.TextField('Описание', max_length=1500, blank=True, null=True)
+    description = models.TextField('Описание', max_length=1500, blank=True,
+                                   null=True)
+
+    publication_date = models.DateTimeField('Дата создания',
+                                            default=datetime.datetime.now)
     creation_date = models.DateField('Дата создания', blank=True, null=True)
 
-    genre = models.ManyToManyField(Genre, verbose_name='Жанры', related_name='origin_set', blank=True)
-    origin_language = models.ForeignKey(Language, verbose_name='Язык оригинала', related_name='origin_set',
-                                        on_delete=models.SET_NULL, blank=True, null=True)
-    format_type = models.ForeignKey(FormatType, verbose_name='Формат', related_name='origin_set',
-                                    on_delete=models.SET_NULL, blank=True, null=True)
+    genre = models.ManyToManyField(Genre, verbose_name='Жанры',
+                                   related_name='origin_set', blank=True)
+    origin_language = models.ForeignKey(Language,
+                                        verbose_name='Язык оригинала',
+                                        related_name='origin_set',
+                                        on_delete=models.SET_NULL, blank=True,
+                                        null=True)
+    format_type = models.ForeignKey(FormatType, verbose_name='Формат',
+                                    related_name='origin_set',
+                                    on_delete=models.SET_NULL, blank=True,
+                                    null=True)
 
     AGES = [
         ('0', '0'),
@@ -58,7 +69,8 @@ class Origin(models.Model):
         ('16', '16'),
         ('18', '18')
     ]
-    age_limit = models.CharField('Возрастной рейтинг', max_length=2, choices=AGES, default='18')
+    age_limit = models.CharField('Возрастной рейтинг', max_length=2,
+                                 choices=AGES, default='18')
 
     poster = models.ForeignKey(OriginIcon, verbose_name='Постер произведения', on_delete=models.SET_NULL,
                                blank=True, null=True)
@@ -140,13 +152,18 @@ class RateList(models.Model):
 
 class Comment(models.Model):
     post = models.TextField('Текст комментария', max_length=1000)
-    post_date = models.DateTimeField('Дата создания', auto_now_add=True)
+    post_date = models.DateTimeField('Дата создания',
+                                     default=datetime.datetime.now)
 
-    author = models.ForeignKey(User, verbose_name='Автор', related_name="%(class)s_set",
-                               on_delete=models.SET_NULL, blank=True, null=True)
-    parent_comment = models.ForeignKey('self', verbose_name='Родительский коментарий',
+    author = models.ForeignKey(User, verbose_name='Автор',
+                               related_name="%(class)s_set",
+                               on_delete=models.SET_NULL, blank=True,
+                               null=True)
+    parent_comment = models.ForeignKey('self',
+                                       verbose_name='Родительский коментарий',
                                        related_name="%(class)s_child_set",
-                                       on_delete=models.CASCADE, null=True, blank=True)
+                                       on_delete=models.CASCADE, null=True,
+                                       blank=True)
 
     class Meta:
         abstract = True

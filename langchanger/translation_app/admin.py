@@ -10,10 +10,11 @@ admin.site.register(Language)
 
 @admin.register(Origin)
 class OriginAdmin(admin.ModelAdmin):
-    fields = ('title', 'author', 'description', 'creation_date',
-              'genre', ('origin_language', 'format_type'), 'age_limit',
-              'poster', 'source_link')
-    list_display = ('title', 'author', 'creation_date', 'origin_language', 'format_type')
+    fields = ('title', 'publication_date', 'author', 'description',
+              'creation_date', 'genre', ('origin_language', 'format_type'),
+              'age_limit', 'poster', 'source_link')
+    list_display = (
+        'title', 'author', 'creation_date', 'origin_language', 'format_type')
 
 
 @admin.register(Translation)
@@ -39,5 +40,5 @@ class RateListAdmin(admin.ModelAdmin):
 @admin.register(CommentOrigin)
 class CommentOriginAdmin(admin.ModelAdmin):
     fields = ('author', 'origin', 'post', 'parent_comment', 'post_date')
-    list_display = ('author', 'origin', 'parent_comment')
-    readonly_fields = ('post_date', )
+    list_display = ('author', 'post_date', 'origin', 'parent_comment')
+    # readonly_fields = ('post_date', )

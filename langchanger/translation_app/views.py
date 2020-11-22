@@ -1,3 +1,5 @@
+import statistics
+
 from django.db.models import Value, IntegerField
 from django.shortcuts import get_list_or_404
 from rest_framework.generics import ListAPIView
@@ -8,6 +10,8 @@ from rest_framework.views import APIView
 from file_app.bot import send_file
 from registration_app.permissions import *
 from .serializers import *
+
+STATISTIC_DAY_RANGE = 7
 
 
 def paginator(request, queryset):
@@ -79,10 +83,12 @@ class AllOriginView(APIView):
         queryset = Origin.objects.filter(**complete_filter)
 
         if order_by == 'relevance':
-            queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
+            queryset = queryset.annotate(
+                rate=Sum('translation_set__rate_set__rate'))
 
             queryset_not_null = queryset.filter(rate__isnull=False)
-            queryset_null = queryset.filter(rate__isnull=True).annotate(rate=Value(0, IntegerField()))
+            queryset_null = queryset.filter(rate__isnull=True).annotate(
+                rate=Value(0, IntegerField()))
             queryset = queryset_not_null.union(queryset_null)
 
             queryset = queryset.order_by('-rate', 'id')
@@ -105,7 +111,8 @@ class OneOriginView(APIView):
 
         origin = get_object_or_404(Origin, pk=pk)
 
-        language_set = set(Translation.objects.filter(origin=pk).values_list('language'))
+        language_set = set(
+            Translation.objects.filter(origin=pk).values_list('language'))
         language_set = [x[0] for x in language_set]
         languages = Language.objects.filter(pk__in=language_set)
 
@@ -144,16 +151,21 @@ class SearchOriginView(APIView):
     def get(self, request):
         search_sentence = request.GET.get('sentence')
 
-        queryset_by_title = Origin.objects.filter(title__icontains=search_sentence)
-        queryset_by_author = Origin.objects.filter(author__icontains=search_sentence)
-        queryset_by_description = Origin.objects.filter(description__icontains=search_sentence)
+        queryset_by_title = Origin.objects.filter(
+            title__icontains=search_sentence)
+        queryset_by_author = Origin.objects.filter(
+            author__icontains=search_sentence)
+        queryset_by_description = Origin.objects.filter(
+            description__icontains=search_sentence)
 
-        queryset_by_description = queryset_by_description.difference(queryset_by_author, queryset_by_title)
+        queryset_by_description = queryset_by_description.difference(
+            queryset_by_author, queryset_by_title)
         queryset_by_author = queryset_by_author.difference(queryset_by_title)
 
         serializer_title = AllOriginSerializer(queryset_by_title, many=True)
         serializer_author = AllOriginSerializer(queryset_by_author, many=True)
-        serializer_description = AllOriginSerializer(queryset_by_description, many=True)
+        serializer_description = AllOriginSerializer(queryset_by_description,
+                                                     many=True)
 
         content = {
             'origin_by_title': serializer_title.data,
@@ -196,13 +208,15 @@ class ReadTranslationView(APIView):
     def get(self, request):
         pk = int(request.GET.get('translation', -1))
 
-        translations = Translation.objects.filter(pk=pk).annotate(rate=Sum('rate_set__rate'))
+        translations = Translation.objects.filter(pk=pk).annotate(
+            rate=Sum('rate_set__rate'))
 
         if not translations:
             return Response(status=400)
 
         translation = translations.first()
-        last_version = Version.objects.filter(translation=pk).latest('creation_date')
+        last_version = Version.objects.filter(translation=pk).latest(
+            'creation_date')
 
         serializer_translation = ReadTranslationSerializer(translation)
         serializer_version = ReadVersionSerializer(last_version)
@@ -235,7 +249,8 @@ class MakeTranslationView(APIView):
         if False not in check_set:
             translation = serializer_translation.save()
 
-            tg_hash = send_file(document=request.data['file'].open(), chat='VersionFile')
+            tg_hash = send_file(document=request.data['file'].open(),
+                                chat='VersionFile')
             file = serializer_file.save(tg_hash=tg_hash)
 
             Version.objects.create(translation=translation, version_link=file)
@@ -256,27 +271,32 @@ class MakeTranslationView(APIView):
 
         if request.user.id == translation.author.id:
             if serializer_file.is_valid():
-                tg_hash = send_file(document=request.data['file'].open(), chat='VersionFile')
+                tg_hash = send_file(document=request.data['file'].open(),
+                                    chat='VersionFile')
                 file = serializer_file.save(tg_hash=tg_hash)
 
-                Version.objects.create(translation=translation, version_link=file)
+                Version.objects.create(translation=translation,
+                                       version_link=file)
 
                 return Response(status=200)
-            return Response(serializer_version.errors, status=400)
-        return Response({'errors': 'user is not author of translation'}, status=400)
+            return Response(serializer_file.errors, status=400)
+        return Response({'errors': 'user is not author of translation'},
+                        status=400)
 
     def delete(self, request):
         pk = int(request.POST.get('translation', -1))
 
         translation = get_object_or_404(Translation, pk=pk)
-        file_id_set = Version.objects.filter(translation=translation.id).values('version_link')
+        file_id_set = Version.objects.filter(
+            translation=translation.id).values('version_link')
 
         if request.user.id == translation.author.id:
             VersionFile.objects.filter(id__in=file_id_set).delete()
             translation.delete()
 
             return Response(status=200)
-        return Response({'error': 'This user is not author of translation'}, status=400)
+        return Response({'error': 'This user is not author of translation'},
+                        status=400)
 
 
 class AllVersionView(APIView):
@@ -310,7 +330,8 @@ class DeleteVersionView(APIView):
         if translation.author.id == request.user.id:
             file.delete()
             return Response(status=200)
-        return Response({'error': 'This user is not author of translation'}, status=400)
+        return Response({'error': 'This user is not author of translation'},
+                        status=400)
 
 
 class DifferencesVersionView(APIView):
@@ -323,7 +344,8 @@ class DifferencesVersionView(APIView):
 
         current_version = get_object_or_404(Version, pk=pk)
         translation = current_version.translation
-        last_version = Version.objects.filter(translation=translation).latest('creation_date')
+        last_version = Version.objects.filter(translation=translation).latest(
+            'creation_date')
 
         serializer_current = ReadVersionSerializer(current_version)
         serializer_last = ReadVersionSerializer(last_version)
@@ -333,6 +355,109 @@ class DifferencesVersionView(APIView):
             'last_version': serializer_last.data,
         }}
 
+        return Response(content)
+
+
+class OriginCommentStatistic(APIView):
+    permission_classes = [permissions.AllowAny]
+
+    renderer_classes = [JSONRenderer]
+
+    def get(self, request):
+
+        origins = Origin.objects.all()[:5]
+        comment_statistics = []
+        i = 0
+        for origin in origins:
+            statistics_base = {
+                "origin_name": origin.title,
+                "comment_amount": [],
+                "day_list": list(range(STATISTIC_DAY_RANGE)),
+                "quantiles": None,
+                "mean": None,
+                "variance": None,
+                "stdev": None,
+                "normalized_mean": None,
+                "normalized_variance": None,
+                "normalized_stdev": None,
+                "coef_asymmetry": None,
+                "coef_excess": None,
+                "coef_cor": None
+            }
+            for j in range(STATISTIC_DAY_RANGE):
+                from_date = origin.publication_date.date() + \
+                            datetime.timedelta(days=j)
+                to_date = origin.publication_date.date() + \
+                          datetime.timedelta(days=j + 1)
+                statistics_base['comment_amount'].append(
+                    CommentOrigin.objects.filter(
+                        Q(origin=origin) &
+                        Q(post_date__gte=from_date) &
+                        Q(post_date__lte=to_date)
+                    ).count())
+
+            statistics_base['quantiles'] = statistics.quantiles(
+                statistics_base['comment_amount'])
+            statistics_base['mean'] = statistics.fmean(
+                statistics_base['comment_amount'])
+            statistics_base['variance'] = statistics.variance(
+                statistics_base['comment_amount'])
+            statistics_base['stdev'] = statistics.stdev(
+                statistics_base['comment_amount'])
+
+            for j in range(STATISTIC_DAY_RANGE):
+                if statistics_base['comment_amount'][j] < \
+                        statistics_base['quantiles'][0] or \
+                        statistics_base['comment_amount'][j] > \
+                        statistics_base['quantiles'][2]:
+                    statistics_base['day_list'][j] = -1
+                    statistics_base['comment_amount'][j] = -1
+            statistics_base['comment_amount'] = list(filter(
+                lambda x: -1 != x,
+                statistics_base['comment_amount']
+            ))
+            statistics_base['day_list'] = list(filter(
+                lambda x: -1 != x,
+                statistics_base['day_list']
+            ))
+
+            statistics_base['normalized_mean'] = statistics.fmean(
+                statistics_base['comment_amount'])
+            statistics_base['normalized_variance'] = statistics.variance(
+                statistics_base['comment_amount'])
+            statistics_base['normalized_stdev'] = statistics.stdev(
+                statistics_base['comment_amount'])
+            statistics_base['coef_asymmetry'] = sum(map(
+                lambda x: (x - statistics_base['normalized_mean']) ** 3,
+                statistics_base['comment_amount']
+            )) / (len(statistics_base['comment_amount']) * statistics_base[
+                'normalized_stdev'] ** 3)
+            statistics_base['coef_excess'] = sum(map(
+                lambda x: (x - statistics_base['normalized_mean']) ** 4,
+                statistics_base['comment_amount']
+            )) / (len(statistics_base['comment_amount']) * statistics_base[
+                'normalized_stdev'] ** 4)
+
+            mean_day_amount = sum(
+                map(lambda x, y: x * y, statistics_base['day_list'],
+                    statistics_base['comment_amount'])) / len(
+                statistics_base['day_list'])
+            mean_day = sum(statistics_base['day_list']) / len(
+                statistics_base['day_list'])
+            stdev_day = statistics.stdev(statistics_base['day_list'])
+            statistics_base['coef_cor'] = (mean_day_amount - mean_day *
+                                           statistics_base[
+                                               'normalized_mean']) / (
+                                                  stdev_day *
+                                                  statistics_base[
+                                                      'normalized_stdev'])
+            comment_statistics.append(statistics_base)
+
+            i += 1
+
+        content = {
+            "data": comment_statistics
+        }
         return Response(content)
 
 
@@ -391,7 +516,8 @@ class MakeRateView(APIView):
         data = request.data.copy()
         data['user'] = request.user.id
 
-        rate_list = RateList.objects.filter(Q(user=data['user']) & Q(translation=data['translation']))
+        rate_list = RateList.objects.filter(
+            Q(user=data['user']) & Q(translation=data['translation']))
 
         if rate_list:
             rate = rate_list.first()
@@ -409,7 +535,8 @@ class MakeRateView(APIView):
         user = request.user.id
         translation = int(request.POST.get('translation', -1))
 
-        rate_list = RateList.objects.filter(Q(user=user) & Q(translation=translation))
+        rate_list = RateList.objects.filter(
+            Q(user=user) & Q(translation=translation))
 
         if rate_list:
             rate = rate_list.first()
