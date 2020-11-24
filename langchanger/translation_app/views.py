@@ -1,3 +1,5 @@
+import math
+import random
 import statistics
 
 from django.db.models import Value, IntegerField
@@ -11,7 +13,12 @@ from file_app.bot import send_file
 from registration_app.permissions import *
 from .serializers import *
 
-STATISTIC_DAY_RANGE = 7
+STATISTIC_DAY_RANGE = 30
+
+
+def get_data_sample():
+    return [random.randrange(x, x + STATISTIC_DAY_RANGE) for x in
+            range(STATISTIC_DAY_RANGE)]
 
 
 def paginator(request, queryset):
@@ -382,7 +389,8 @@ class OriginCommentStatistic(APIView):
                 "normalized_stdev": None,
                 "coef_asymmetry": None,
                 "coef_excess": None,
-                "coef_cor": None
+                "coef_cor": None,
+                "equation": None
             }
             for j in range(STATISTIC_DAY_RANGE):
                 from_date = origin.publication_date.date() + \
@@ -451,6 +459,11 @@ class OriginCommentStatistic(APIView):
                                                   stdev_day *
                                                   statistics_base[
                                                       'normalized_stdev'])
+            k = round(
+                math.sqrt(statistics_base['normalized_stdev'] / stdev_day), 4)
+            b = round(statistics_base['normalized_mean'] - k * mean_day, 4)
+            statistics_base["equation"] = "{k}*x - {b}".format(k=k, b=b)
+
             comment_statistics.append(statistics_base)
 
             i += 1
