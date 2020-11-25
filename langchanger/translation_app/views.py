@@ -446,19 +446,15 @@ class OriginCommentStatistic(APIView):
             )) / (len(statistics_base['comment_amount']) * statistics_base[
                 'normalized_stdev'] ** 4)
 
-            mean_day_amount = sum(
-                map(lambda x, y: x * y, statistics_base['day_list'],
-                    statistics_base['comment_amount'])) / len(
-                statistics_base['day_list'])
             mean_day = sum(statistics_base['day_list']) / len(
                 statistics_base['day_list'])
             stdev_day = statistics.stdev(statistics_base['day_list'])
-            statistics_base['coef_cor'] = (mean_day_amount - mean_day *
-                                           statistics_base[
-                                               'normalized_mean']) / (
-                                                  stdev_day *
-                                                  statistics_base[
-                                                      'normalized_stdev'])
+            covar = sum(map(lambda x, y: x * y, statistics_base['day_list'],
+                            statistics_base['comment_amount'])) / len(
+                statistics_base['day_list']) - mean_day * statistics_base[
+                        'normalized_mean']
+            statistics_base['coef_cor'] = covar / (
+                    stdev_day * statistics_base['normalized_stdev'])
             k = round(
                 math.sqrt(statistics_base['normalized_stdev'] / stdev_day), 4)
             b = round(statistics_base['normalized_mean'] - k * mean_day, 4)
