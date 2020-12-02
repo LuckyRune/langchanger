@@ -186,18 +186,17 @@ class OriginCommentStatistic(APIView):
                 "coef_cor": None,
                 "equation": None
             }
-            statistics_base["comment_amount"] = get_data_sample()
-            # for j in range(STATISTIC_DAY_RANGE):
-            #     from_date = origin.publication_date.date() + \
-            #                 datetime.timedelta(days=j)
-            #     to_date = origin.publication_date.date() + \
-            #               datetime.timedelta(days=j + 1)
-            #     statistics_base['comment_amount'].append(
-            #         CommentOrigin.objects.filter(
-            #             Q(origin=origin) &
-            #             Q(post_date__gte=from_date) &
-            #             Q(post_date__lte=to_date)
-            #         ).count())
+            for j in range(STATISTIC_DAY_RANGE):
+                from_date = origin.publication_date.date() + \
+                            datetime.timedelta(days=j)
+                to_date = origin.publication_date.date() + \
+                          datetime.timedelta(days=j + 1)
+                statistics_base['comment_amount'].append(
+                    CommentOrigin.objects.filter(
+                        Q(origin=origin) &
+                        Q(post_date__gte=from_date) &
+                        Q(post_date__lte=to_date)
+                    ).count())
 
             statistics_base['quantiles'] = statistics.quantiles(
                 statistics_base['comment_amount'])
