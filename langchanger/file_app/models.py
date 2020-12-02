@@ -39,20 +39,6 @@ class OriginIcon(TgImage):
         verbose_name = 'Иконка оригинала'
 
 
-class AchievementIcon(TgImage):
-
-    class Meta:
-        verbose_name_plural = 'Иконки достижений'
-        verbose_name = 'Иконка достижения'
-
-
-class VersionFile(TgFile):
-
-    class Meta:
-        verbose_name_plural = 'Файлы версий переводов'
-        verbose_name = 'Файл версии перевода'
-
-
 class OriginFile(TgFile):
 
     class Meta:

@@ -1,13 +1,9 @@
-from django.db.models import Count, Sum, Value, IntegerField
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from file_app.bot import send_image
-from file_app.models import UserIcon
-from file_app.serializers import UserIconSerializer
-from translation_app.models import Translation
-from translation_app.serializers import AllTranslationSerializer, AllOriginSerializer
+from translation_app.serializers import AllOriginSerializer
 from .permissions import *
 from .serializers import *
 
@@ -38,31 +34,13 @@ class AllUserView(APIView):
 
     renderer_classes = [JSONRenderer]
 
-    ordering_set = {
-        'rate': '-rate',
-        'achievement': '-count_achievement',
-        'translation': '-count_translation',
-    }
-
     def get(self, request):
-        order_by = request.GET.get('order', 'rate')
         search_sentence = request.GET.get('sentence')
 
         queryset = User.objects.filter(is_staff=False)
 
         if search_sentence:
             queryset = queryset.filter(username__icontains=search_sentence)
-
-        queryset = queryset.annotate(count_achievement=Count('user_profile__achievements'))
-        queryset = queryset.annotate(count_translation=Count('translation_set'))
-        queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
-
-        queryset_not_null = queryset.filter(rate__isnull=False)
-        queryset_null = queryset.filter(rate__isnull=True).annotate(rate=Value(0, IntegerField()))
-        queryset = queryset_not_null.union(queryset_null)
-
-        if order_by in self.ordering_set:
-            queryset = queryset.order_by(self.ordering_set[order_by])
 
         response_queryset = paginator(request, queryset)
 
@@ -100,20 +78,15 @@ class ProfileUserView(APIView):
     def get(self, request):
         pk = int(request.GET.get('user', -1))
 
-        users = User.objects.filter(pk=pk).annotate(rate=Sum('translation_set__rate_set__rate'))
-
         if not users:
             return Response(status=400)
 
         user = users.first()
-        translations = Translation.objects.filter(author=pk).annotate(rate=Sum('rate_set__rate'))
 
-        serializer_translations = AllTranslationSerializer(translations, many=True)
         serializer_user = DetailedUserSerializer(user)
 
         content = {'data': {
             'user': serializer_user.data,
-            'translations': serializer_translations.data,
         }}
 
         return Response(content, status=200)
@@ -225,30 +198,12 @@ class RegisterUserView(APIView):
         }, status=400)
 
 
-class AchievementView(APIView):
-    permission_classes = [permissions.AllowAny]
-
-    renderer_classes = [JSONRenderer]
-
-    def get(self, request):
-        pk = int(request.GET.get('achievement', -1))
-
-        achievement = get_object_or_404(Achievement, pk=pk)
-
-        serializer = AchievementSerializer(achievement)
-
-        content = {'data': serializer.data}
-
-        return Response(content)
-
-
 class OnHoldUserView(APIView):
     permission_classes = [permissions.AllowAny]
 
     renderer_classes = [JSONRenderer]
 
     filter_name_set = {
-        'format': 'format_type__in',
         'genre': 'genre__in',
         'age': 'age_limit__in',
         'language': 'origin_language__in',
@@ -270,13 +225,7 @@ class OnHoldUserView(APIView):
         queryset = origin_list.filter(**complete_filter)
 
         if order_by == 'relevance':
-            queryset = queryset.annotate(rate=Sum('translation_set__rate_set__rate'))
-
-            queryset_not_null = queryset.filter(rate__isnull=False)
-            queryset_null = queryset.filter(rate__isnull=True).annotate(rate=Value(0, IntegerField()))
-            queryset = queryset_not_null.union(queryset_null)
-
-            queryset = queryset.order_by('-rate', 'id')
+            queryset = queryset.order_by('id')
 
         response_queryset = paginator(request, queryset)
 
@@ -372,17 +321,3 @@ class BanUserIPView(APIView):
         banned_user.save()
 
         return Response(status=200)
-
-
-class TestView(APIView):
-    permission_classes = [BlacklistPermission]
-
-    renderer_classes = [JSONRenderer]
-
-    def get(self, request):
-
-        check = User.objects.get(pk=request.user.id).groups.filter(name='Moderator').values()
-        # if check:
-        #     return Response(status=200)
-        # return Response(status=400)
-        return Response({'data': get_client_ip(request)})

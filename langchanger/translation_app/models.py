@@ -3,7 +3,7 @@ import datetime
 from django.contrib.auth.models import User
 from django.db import models
 
-from file_app.models import OriginFile, OriginIcon, VersionFile
+from file_app.models import OriginFile, OriginIcon
 
 
 # Create your models here.
@@ -13,17 +13,6 @@ class Genre(models.Model):
     class Meta:
         verbose_name = 'Жанр'
         verbose_name_plural = 'Жанры'
-
-    def __str__(self):
-        return self.name
-
-
-class FormatType(models.Model):
-    name = models.CharField('Название формата', max_length=30)
-
-    class Meta:
-        verbose_name = 'Формат'
-        verbose_name_plural = 'Форматы'
 
     def __str__(self):
         return self.name
@@ -57,10 +46,6 @@ class Origin(models.Model):
                                         related_name='origin_set',
                                         on_delete=models.SET_NULL, blank=True,
                                         null=True)
-    format_type = models.ForeignKey(FormatType, verbose_name='Формат',
-                                    related_name='origin_set',
-                                    on_delete=models.SET_NULL, blank=True,
-                                    null=True)
 
     AGES = [
         ('0', '0'),
@@ -86,68 +71,6 @@ class Origin(models.Model):
     def __str__(self):
         origin_label = "{}, {}".format(self.title, self.author)
         return origin_label
-
-
-class Translation(models.Model):
-    creation_date = models.DateTimeField('Дата начала перевода', auto_now_add=True)
-
-    author = models.ForeignKey(User, verbose_name='Автор', related_name='translation_set',
-                               on_delete=models.SET_NULL, blank=True, null=True)
-    origin = models.ForeignKey(Origin, verbose_name='Оригинал', related_name='translation_set',
-                               on_delete=models.SET_NULL, blank=True, null=True)
-    language = models.ForeignKey(Language, verbose_name='Язык', related_name='translation_set',
-                                 on_delete=models.SET_NULL, blank=True, null=True)
-
-    class Meta:
-        verbose_name = 'Перевод'
-        verbose_name_plural = 'Переводы'
-
-        ordering = ['-creation_date']
-
-    def __str__(self):
-        translation_label = "Автор перевода: {}; Язык: {}; Оригинал: {}".format(self.author, self.language, self.origin)
-        return translation_label
-
-
-class Version(models.Model):
-    creation_date = models.DateTimeField('Дата создания', auto_now_add=True)
-
-    translation = models.ForeignKey(Translation, verbose_name='Основной перевод', related_name='version_set',
-                                    on_delete=models.CASCADE)
-
-    version_link = models.ForeignKey(VersionFile, verbose_name='Ссылка на версию', on_delete=models.CASCADE,
-                                     blank=True, null=True)
-
-    class Meta:
-        verbose_name = 'Версия перевода'
-        verbose_name_plural = 'Версии переводов'
-
-        ordering = ['translation', '-creation_date']
-
-    def __str__(self):
-        translation = self.translation.__str__()
-        version_label = "{} ({})".format(translation, self.creation_date)
-        return version_label
-
-
-class RateList(models.Model):
-    rate = models.SmallIntegerField('Оценка', default=0)
-    rate_date = models.DateField('Дата оценивания', auto_now_add=True)
-
-    user = models.ForeignKey(User, verbose_name='Пользователь', related_name='rate_set', on_delete=models.CASCADE)
-    translation = models.ForeignKey(Translation, verbose_name='Перевод', related_name='rate_set',
-                                    on_delete=models.CASCADE)
-
-    class Meta:
-        verbose_name = 'Оценка'
-        verbose_name_plural = 'Оценки'
-
-        ordering = ['translation']
-
-    def __str__(self):
-        translation = self.translation.__str__()
-        rate_label = "Пользователь {} поставил{} переводу: {}".format(self.user.username, self.rate, translation)
-        return rate_label
 
 
 class Comment(models.Model):

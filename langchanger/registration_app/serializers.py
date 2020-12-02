@@ -1,16 +1,8 @@
+from django.contrib.auth.models import Group
 from rest_framework import serializers
 
+from file_app.serializers import UserIconSerializer
 from .models import *
-from django.contrib.auth.models import User, Group
-from file_app.serializers import AchievementIconSerializer, UserIconSerializer
-
-
-class AchievementSerializer(serializers.ModelSerializer):
-    icon = AchievementIconSerializer()
-
-    class Meta:
-        model = Achievement
-        fields = ('id', 'name', 'description', 'rate', 'icon')
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
@@ -18,7 +10,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserProfile
-        fields = ('description', 'achievements', 'on_hold', 'profile_icon')
+        fields = ('description', 'on_hold', 'profile_icon')
 
 
 class DetailedUserSerializer(serializers.ModelSerializer):
@@ -28,7 +20,7 @@ class DetailedUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'rate', 'user_profile')
+        fields = ('id', 'username', 'email', 'user_profile')
 
 
 class IconUserProfileSerializer(serializers.ModelSerializer):
@@ -40,24 +32,20 @@ class IconUserProfileSerializer(serializers.ModelSerializer):
 
 
 class AllUserSerializer(serializers.ModelSerializer):
-    count_achievement = serializers.IntegerField(read_only=True)
-    count_translation = serializers.IntegerField(read_only=True)
-    rate = serializers.IntegerField(read_only=True)
 
     user_profile = IconUserProfileSerializer()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'rate', 'count_achievement', 'count_translation', 'user_profile')
+        fields = ('id', 'username', 'email', 'user_profile')
 
 
 class RateUserSerializer(serializers.ModelSerializer):
-    rate = serializers.IntegerField(read_only=True)
     user_profile = IconUserProfileSerializer()
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'rate', 'user_profile')
+        fields = ('id', 'username', 'user_profile')
 
 
 class GroupSerializer(serializers.ModelSerializer):

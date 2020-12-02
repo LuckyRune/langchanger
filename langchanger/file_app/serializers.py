@@ -1,9 +1,7 @@
-from abc import ABC
-
 from rest_framework import serializers
 
-from .models import UserIcon, OriginIcon, AchievementIcon, OriginFile, VersionFile
-from .bot import get_file, send_file, send_image
+from .bot import get_file
+from .models import UserIcon, OriginIcon, OriginFile
 
 
 def validate_file(value):
@@ -87,18 +85,8 @@ class OriginIconSerializer(IconSerializer):
         model = OriginIcon
 
 
-class AchievementIconSerializer(IconSerializer):
-    class Meta(IconSerializer.Meta):
-        model = AchievementIcon
-
-
 class OriginFileSerializer(FileSerializer):
     class Meta(FileSerializer.Meta):
         model = OriginFile
-
-
-class VersionFileSerializer(FileSerializer):
-    class Meta(FileSerializer.Meta):
-        model = VersionFile
 
 

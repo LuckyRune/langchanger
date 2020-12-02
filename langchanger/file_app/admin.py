@@ -1,7 +1,7 @@
 from django.contrib import admin
-from .models import AchievementIcon, OriginIcon, UserIcon, OriginFile, VersionFile
 
 from .bot import send_image, send_file
+from .models import OriginIcon, UserIcon, OriginFile
 
 
 class TgFileAdmin(admin.ModelAdmin):
@@ -30,9 +30,7 @@ class TgImageAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
 
-admin.site.register(AchievementIcon, TgImageAdmin)
 admin.site.register(OriginIcon, TgImageAdmin)
 admin.site.register(UserIcon, TgImageAdmin)
 
 admin.site.register(OriginFile, TgFileAdmin)
-admin.site.register(VersionFile, TgFileAdmin)
