@@ -9,7 +9,7 @@
   "dependencies": {
     "@pdftron/webviewer": "^6.3.0",
     "@syncfusion/ej2-vue-dropdowns": "^18.1.55",
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "core-js": "^3.6.4",
     "pdfjs-dist": "^2.3.200",
     "pdfvuer": "^1.6.0",
